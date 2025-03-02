@@ -1,4 +1,4 @@
-import { Btc1DidDocument } from '../src/types/btc1.js';
+import { DidBtc1Document } from '../src/types.js';
 
 export const idTypes = { key: 'key', external: 'external' };
 export const versions = ['1', '2', '3', '4', '5'];
@@ -875,4 +875,4 @@ export const intermediateDocument = {
       'serviceEndpoint' : 'bitcoin:bc1pvq4q6u937m8qx4fv4ldsc5wyykw9784y89p9xvdza28q9r3wlepq54nwvg'
     }
   ]
-} as Btc1DidDocument;
+} as DidBtc1Document;

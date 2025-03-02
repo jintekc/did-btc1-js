@@ -1,5 +1,5 @@
-import { Bip340Cryptosuite } from '../../types/cryptosuite.js';
-import { AddProofParams, SecureDocument, VerificationResult, VerifyProofParams } from '../../types/di-proof.js';
+import { AddProofParams, Proof, SecureDocument, VerificationResult, VerifyProofParams } from '../../types/di-proof.js';
+import { Cryptosuite } from '../cryptosuite/index.js';
 import { IDataIntegrityProof } from './interface.js';
 
 /**
@@ -12,25 +12,29 @@ import { IDataIntegrityProof } from './interface.js';
  * @implements {IDataIntegrityProof}
  */
 export class DataIntegrityProof implements IDataIntegrityProof {
-  /** @type {Bip340Cryptosuite} The cryptosuite to use for proof generation and verification. */
-  public cryptosuite: Bip340Cryptosuite;
+  /** @type {Cryptosuite} The cryptosuite to use for proof generation and verification. */
+  public cryptosuite: Cryptosuite;
 
   /**
    * Creates an instance of DataIntegrityProof.
    * @constructor
-   * @param {Bip340Cryptosuite} cryptosuite The cryptosuite to use for proof generation and verification.
+   * @param {Cryptosuite} cryptosuite The cryptosuite to use for proof generation and verification.
    */
-  constructor(cryptosuite: Bip340Cryptosuite) {
+  constructor(cryptosuite: Cryptosuite) {
     this.cryptosuite = cryptosuite;
   }
 
   /** @see IDataIntegrityProof.addProof */
-  public addProof({ document, options }: AddProofParams): SecureDocument {
+  public async addProof({ document, options }: AddProofParams): Promise<SecureDocument> {
+    // Create a copy of the document
+    const secure = document as SecureDocument;
+
     // Generate the proof
-    const proof = this.cryptosuite.createProof({ document, options });
+    const proof = await this.cryptosuite.createProof({ document: secure, options });
 
     // Deconstruct the proof object
     const { type, verificationMethod, proofPurpose } = proof;
+
     // Check if the type, verificationMethod, and proofPurpose are defined
     if (!type || !verificationMethod || !proofPurpose) {
       throw new Error('PROOF_GENERATION_ERROR');
@@ -50,43 +54,61 @@ export class DataIntegrityProof implements IDataIntegrityProof {
       throw new Error('PROOF_GENERATION_ERROR');
     }
 
-    // Return the secure document
-    return { ...document, proof } as SecureDocument;
+    // Set the proof in the secure document and return it
+    secure.proof = proof;
+    return secure;
   }
 
   /** @see IDataIntegrityProof.verifyProof */
-  public verifyProof(params: VerifyProofParams): VerificationResult {
+  public async verifyProof(params: VerifyProofParams): Promise<VerificationResult> {
     // Deconstruct the params object
     const { mediaType, document, expectedPurpose, expectedDomain, expectedChallenge } = params;
+
     // Parse the document
-    const diproof = JSON.parse(Buffer.from(document).toString());
-    // Deconstruct the diproof object
-    const { proof } = diproof;
+    const secure = JSON.parse(document) as SecureDocument;
+
+    // Deconstruct the secure object to get the proof
+    const { proof }: { proof: Proof } = secure;
+
     // Check if the proof object is an object
-    if (typeof diproof !== 'object' || typeof proof !== 'object') {
+    if (typeof secure !== 'object' || typeof proof !== 'object') {
       throw new Error('PARSING_ERROR');
     }
+
     // Deconstruct the proof object
-    const { type, proofPurpose, verificationMethod } = proof;
+    const { type, proofPurpose, verificationMethod, challenge, domain } = proof;
     // Check if the type, proofPurpose, and verificationMethod are defined
     if (!type || !verificationMethod || !proofPurpose) {
       throw new Error('PROOF_VERIFICATION_ERROR');
     }
+
     // Check if the expectedPurpose is defined and if it matches the proofPurpose
     if (expectedPurpose && expectedPurpose !== proofPurpose) {
       throw new Error('PROOF_VERIFICATION_ERROR');
     }
+
     // Check if the expectedChallenge is defined and if it matches the challenge
-    if (expectedChallenge && expectedChallenge !== proof.challenge) {
+    if (expectedChallenge && expectedChallenge !== challenge) {
       throw new Error('INVALID_CHALLENGE_ERROR');
     }
-    // Check if the expectedDomain is defined and if it matches the domain
-    if(expectedDomain && expectedDomain !== proof.domain) {
+
+    // Check if the expectedDomain length matches the proof.domain length
+    if(expectedDomain && expectedDomain?.length !== domain?.length) {
       throw new Error('INVALID_DOMAIN_ERROR');
     }
+
+    // If defined, check that each entry in expectedDomain can be found in proof.domain
+    if(expectedDomain && !expectedDomain?.every(url => domain?.includes(url))) {
+      throw new Error('INVALID_DOMAIN_ERROR');
+    }
+
     // Verify the proof
-    const verificationResult = this.cryptosuite.verifyProof(diproof);
+    const verificationResult = await this.cryptosuite.verifyProof(secure);
+
+    // Add the mediaType to the verification result
+    verificationResult.mediaType = mediaType;
+
     // Return the verification result
-    return { ...verificationResult, mediaType } as VerificationResult;
+    return verificationResult;
   }
 }

@@ -6,6 +6,7 @@ export type PrivateKeyBytes = Bytes;
 export type PublicKeyBytes = Bytes;
 export type MultikeyPrefix = Bytes;
 export type SignatureBytes = Bytes;
+export type ProofBytes = Bytes;
 export type SignatureHex = string;
 export type HashBytes = Bytes;
 export type HashHex = string;

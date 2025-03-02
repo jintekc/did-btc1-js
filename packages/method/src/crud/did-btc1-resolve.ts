@@ -6,11 +6,12 @@ import { DidError, DidErrorCode } from '@web5/dids';
 import { createHelia } from 'helia';
 import { CID } from 'multiformats/cid';
 import * as Digest from 'multiformats/hashes/digest';
-import Bitcoind from '../bitcoin/client.js';
+import { DidBtc1Create } from './did-btc1-create.js';
+import Bitcoind from '../bitcoin/bitcoin-client.js';
 import { DEFAULT_BLOCK_CONFIRMATIONS } from '../constants/bitcoind.js';
-import { ID_PLACEHOLDER_VALUE } from '../constants/btc1.js';
-import DidBtc1Utils from '../did-btc1-utils.js';
 import { TargetBlockHeight } from '../types/bitcoind.js';
+import { ID_PLACEHOLDER_VALUE } from '../constants/btc1.js';
+import { DidBtc1Utils } from '../utils/did-btc1-utils.js';
 import {
   Btc1DidDocument,
   ReadCas,
@@ -21,17 +22,16 @@ import {
   TraverseBlockchainParams,
   UnixTimestamp
 } from '../types/btc1.js';
-import { DidBtc1Error } from '../utils/errors.js';
+import { DidBtc1Error } from '../utils/did-btc1-error.js';
 import { GeneralUtils } from '../utils/general.js';
-import { Btc1Create } from './create.js';
 
 /**
  * @class
- * @name Btc1Read
+ * @name DidBtc1Read
  * @description Implements the Read section of the did-btc1 spec for resolving `did:btc1` identifiers and documents
  * {@link https://dcdpr.github.io/did-btc1/#read}
  */
-export class Btc1Read {
+export class DidBtc1Read {
   /**
    * @static @method
    * @name deterministic
@@ -39,11 +39,11 @@ export class Btc1Read {
    * @param {ReadDeterministic} params Required params for calling the deterministic method
    * @param {string} params.version The did-btc1 version
    * @param {string} params.network The name of the bitcoin network (mainnet, testnet, regtest)
-   * @param {Uint8Array} params.publicKey The public key bytes used for the identifier
+   * @param {Uint8Array} params.pubKeyBytes The public key bytes used for the identifier
    * @returns {Btc1DidDocument} The resolved DID Document object
    */
-  static deterministic({ version, network, publicKey }: ReadDeterministic): Btc1DidDocument {
-    return Btc1Create.deterministic({ version, network, publicKey }).initialDocument;
+  static deterministic({ version, network, pubKeyBytes }: ReadDeterministic): Btc1DidDocument {
+    return DidBtc1Create.deterministic({ version, network, pubKeyBytes }).initialDocument;
   }
 
   /**

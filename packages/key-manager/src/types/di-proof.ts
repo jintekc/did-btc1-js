@@ -1,5 +1,5 @@
-import { Bip340CryptosuiteType } from './cryptosuite.js';
-import { Btc1Identifier, Bytes } from './shared.js';
+import { CryptosuiteType } from './cryptosuite.js';
+import { Btc1Identifier } from './shared.js';
 
 /** Types */
 export type DataIntegrityProofType = 'DataIntegrityProof';
@@ -14,17 +14,18 @@ export type CanonicalizedProofConfig = string;
 /** Interfaces */
 export interface Proof {
   '@context': Context;
-  type: DataIntegrityProofType;
-  cryptosuite: Bip340CryptosuiteType;
+  type?: DataIntegrityProofType;
+  '@type'?: DataIntegrityProofType;
+  cryptosuite: CryptosuiteType;
   verificationMethod: `${Btc1Identifier}#initialKey`;
   proofPurpose: string;
   proofValue: string;
-  domain: string[];
-  challenge: string;
+  domain?: string[];
+  challenge?: string;
 }
 export interface VerifyProofParams {
   mediaType?: string;
-  document: Bytes;
+  document: string;
   expectedPurpose: string;
   expectedDomain?: string[];
   expectedChallenge?: string;
@@ -32,4 +33,5 @@ export interface VerifyProofParams {
 export interface VerificationResult {
   verified: boolean;
   verifiedDocument?: SecureDocument;
+  mediaType?: string;
 }

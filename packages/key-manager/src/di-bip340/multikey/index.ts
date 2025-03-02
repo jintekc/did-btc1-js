@@ -5,24 +5,24 @@ import { base58btc } from 'multiformats/bases/base58';
 import { Btc1KeyManagerError } from '../../utils/error.js';
 import { Hex } from '@noble/secp256k1';
 import { PrivateKeyBytes, PublicKeyBytes, SignatureBytes, PublicKeyMultibase } from '../../types/shared.js';
-import { IBip340Multikey } from './interface.js';
-import { Bip340MultikeyUtils, SECP256K1_XONLY_PREFIX } from './utils.js';
-import { Bip340MultikeyParams } from '../../types/multikey.js';
+import { IMultikey } from './interface.js';
+import { MultikeyUtils, SECP256K1_XONLY_PREFIX } from './utils.js';
+import { MultikeyParams } from '../../types/multikey.js';
 
 /**
  * Implements section
  * {@link https://dcdpr.github.io/data-integrity-schnorr-secp256k1/#multikey | 2.1.1 Multikey} of the
  * {@link https://dcdpr.github.io/data-integrity-schnorr-secp256k1 | Data Integrity Bip340 Cryptosuite} spec
  * @export
- * @class Bip340Multikey
- * @type {Bip340Multikey}
- * @implements {Bip340Multikey}
+ * @class Multikey
+ * @type {Multikey}
+ * @implements {Multikey}
  */
-export class Bip340Multikey implements IBip340Multikey {
-  /** @type {string} The controller id for the full id */
+export class Multikey implements IMultikey {
+  /** @type {string} The id references which key to use for various operations in the DID Document */
   public id: string;
 
-  /** @type {string} The did controller */
+  /** @type {string} The controller is the DID that controls the keys and information in the DID DOcument */
   public controller: string;
 
   /** @type {PublicKeyBytes} The private key bytes for the multikey */
@@ -41,7 +41,7 @@ export class Bip340Multikey implements IBip340Multikey {
    * @param {PrivateKeyBytes} params.privateKey The private key of the multikey (optional)
    * @throws {Btc1KeyManagerError} if neither a publicKey nor a privateKey is provided
    */
-  constructor({ id, controller, privateKey, publicKey }: Bip340MultikeyParams) {
+  constructor({ id, controller, privateKey, publicKey }: MultikeyParams) {
     // If there is no public or private key, throw an error
     if (!publicKey && !privateKey) {
       throw new Btc1KeyManagerError('Must pass publicKey, privateKey or both');
@@ -58,7 +58,7 @@ export class Bip340Multikey implements IBip340Multikey {
       : publicKey;
   }
 
-  /** @see IBip340Multikey.sign */
+  /** @see Multikey.sign */
   public sign(data: Hex): SignatureBytes {
     // If there is no private key, throw an error
     if (!this.privateKey) {
@@ -68,25 +68,25 @@ export class Bip340Multikey implements IBip340Multikey {
     return schnorr.sign(data, this.privateKey, randomBytes(32));
   }
 
-  /** @see IBip340Multikey.verify */
+  /** @see Multikey.verify */
   public verify(message: Hex, signature: Hex): boolean {
     // Verify the signature and return the result
     return schnorr.verify(signature, message, this.publicKey);
   }
 
-  /** @see IBip340Multikey.encode */
+  /** @see Multikey.encode */
   public encode(): PublicKeyMultibase {
     // Encode the public key and return it
-    return Bip340MultikeyUtils.encode(this.publicKey);
+    return MultikeyUtils.encode(this.publicKey);
   }
 
-  /** @see IBip340Multikey.decode */
+  /** @see Multikey.decode */
   public decode(publicKeyMultibase: PublicKeyMultibase): PublicKeyBytes {
     // Decode the public key and return it
-    return Bip340MultikeyUtils.decode(publicKeyMultibase);
+    return MultikeyUtils.decode(publicKeyMultibase);
   }
 
-  /** @see IBip340Multikey.fullId */
+  /** @see Multikey.fullId */
   public fullId(): string {
     // If the id starts with a #, return the full id
     if (this.id.startsWith('#')) {
@@ -96,7 +96,7 @@ export class Bip340Multikey implements IBip340Multikey {
     return this.id;
   }
 
-  /** @see IBip340Multikey.toVerificationMethod */
+  /** @see Multikey.toVerificationMethod */
   public toVerificationMethod(): DidVerificationMethod {
     // Return the verification method
     return {
@@ -107,8 +107,8 @@ export class Bip340Multikey implements IBip340Multikey {
     };
   }
 
-  /** @see IBip340Multikey.fromVerificationMethod */
-  public fromVerificationMethod(verificationMethod: DidVerificationMethod): Bip340Multikey {
+  /** @see Multikey.fromVerificationMethod */
+  public fromVerificationMethod(verificationMethod: DidVerificationMethod): Multikey {
     // Destructure the verification method
     const { id, type, controller, publicKeyMultibase } = verificationMethod;
     // Check if the required field id is missing
@@ -137,6 +137,6 @@ export class Bip340Multikey implements IBip340Multikey {
     // Get the publicKey by slicing off the prefix
     const publicKey = publicKeyBytes.slice(SECP256K1_XONLY_PREFIX.length);
     // Return a new multikey
-    return new Bip340Multikey({ id, controller, publicKey });
+    return new Multikey({ id, controller, publicKey });
   }
 }

@@ -1,13 +1,13 @@
 import { Hex } from '@noble/secp256k1';
 import { DidVerificationMethod } from '@web5/dids';
 import { PrivateKeyBytes, PublicKeyBytes, SignatureBytes, PublicKeyMultibase } from '../../types/shared.js';
-import { Bip340Multikey } from './multikey.js';
+import { Multikey } from './index.js';
 
 /**
  * Interface representing a BIP-340 Multikey.
- * @interface IBip340Multikey
+ * @interface IMultikey
  */
-export interface IBip340Multikey {
+export interface IMultikey {
   /** @type {string} The unique identifier of the multikey */
   id: string;
 
@@ -69,5 +69,5 @@ export interface IBip340Multikey {
    * @throws {Btc1KeyManagerError} if the verification method has an invalid type
    * @throws {Btc1KeyManagerError} if the publicKeyMultibase has an invalid prefix
    */
-  fromVerificationMethod(verificationMethod: DidVerificationMethod): Bip340Multikey;
+  fromVerificationMethod(verificationMethod: DidVerificationMethod): Multikey;
 }

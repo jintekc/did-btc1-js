@@ -1,6 +1,6 @@
 import { PrivateKeyBytes, PublicKeyBytes } from './shared.js';
 
-export type Bip340MultikeyParams  = {
+export type MultikeyParams  = {
   id: string;
   controller: string;
 } & (

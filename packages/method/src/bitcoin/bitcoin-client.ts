@@ -1,8 +1,8 @@
 import { default as Client } from 'bitcoin-core';
-import '../exts.js';
+import '../utils/exts.js';
 import { DEFAULT_CLIENT_CONFIG } from '../constants/bitcoind.js';
-import BitcoindClientError from './error.js';
-import IBitcoinClient from './interface.js';
+import BitcoindClientError from './bitcoin-client-error.js';
+import IBitcoinClient from './ibitcoin-client.js';
 import {
   AddMultiSigAddressParams,
   BatchOption,

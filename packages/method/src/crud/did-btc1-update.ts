@@ -1,7 +1,7 @@
 import type { DidService } from '@web5/dids';
 import { DidError, DidErrorCode } from '@web5/dids';
 import { base58btc } from 'multiformats/bases/base58';
-import Bitcoind from '../bitcoin/client.js';
+import Bitcoind from '../bitcoin/bitcoin-client.js';
 import { SignedRawTx } from '../types/bitcoind.js';
 import {
   BeaconServiceEndpoint,
@@ -13,7 +13,7 @@ import {
   ProofOptions,
   UpdatePayload
 } from '../types/btc1.js';
-import { DidBtc1Error } from '../utils/errors.js';
+import { DidBtc1Error } from '../utils/did-btc1-error.js';
 import { GeneralUtils } from '../utils/general.js';
 import JsonPatch from '../utils/json-patch.js';
 
@@ -21,7 +21,7 @@ import JsonPatch from '../utils/json-patch.js';
  * Implements the {@link https://dcdpr.github.io/did-btc1/#update | Update} section of the
  * {@link https://dcdpr.github.io/did-btc1/ | DID BTC1} spec for updating `did:btc1` dids and did documents.
  */
-export class Btc1Update {
+export class DidBtc1Update {
   /**
    * Constructs an UpdatePayload object from a given sourceDocument, sourceVersionId, and documentPatch.
    *

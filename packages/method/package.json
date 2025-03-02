@@ -1,8 +1,8 @@
 {
     "name": "@did-btc1/method",
-    "version": "0.3.0",
+    "version": "0.1.1",
     "type": "module",
-    "description": "@did-btc1/method is the typescript/javascript reference implementation of the did:btc1 spec. did:btc1 is a censorship resistant DID Method using the Bitcoin blockchain as a Verifiable Data Registry to announce changes to the DID document. It improves on prior work by allowing: zero-cost off-chain DID creation; aggregated updates for scalable on-chain update costs; long-term identifiers that can support frequent updates; private communication of the DID document; private DID resolution; and non-repudiation appropriate for serious contracts.",
+    "description": "Typescript reference implementation of the did:btc1 spec. did:btc1 is a censorship resistant DID Method using the Bitcoin blockchain as a Verifiable Data Registry to announce changes to the DID document. It improves on prior work by allowing: zero-cost off-chain DID creation; aggregated updates for scalable on-chain update costs; long-term identifiers that can support frequent updates; private communication of the DID document; private DID resolution; and non-repudiation appropriate for serious contracts.",
     "main": "./dist/cjs/index.js",
     "module": "./dist/esm/index.js",
     "types": "./dist/types/index.d.ts",
@@ -12,42 +12,33 @@
             "types": "./dist/types/index.d.ts",
             "import": "./dist/esm/index.js",
             "require": "./dist/cjs/index.js"
-        },
-        "./browser": {
-            "types": "./dist/types/index.d.ts",
-            "import": "./dist/browser/browser.mjs",
-            "require": "./dist/browser/browser.js"
         }
     },
     "scripts": {
         "clean": "rimraf dist coverage tests/compiled",
-        "wipe": "rimraf node_modules pnpm-lock.json",
+        "wipe": "rimraf node_modules package-lock.json",
         "build": "pnpm clean && pnpm build:esm && pnpm build:cjs",
         "build:esm": "rimraf dist/esm dist/types && pnpm tsc -p tsconfig.json",
         "build:cjs": "rimraf dist/cjs && tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
-        "build:browser": "rimraf dist/browser && node build/bundles.js",
         "build:tests:node": "rimraf tests/compiled && pnpm tsc -p tests/tsconfig.json",
-        "build:tests:browser": "rimraf tests/compiled && node build/esbuild-tests.cjs",
         "lint": "eslint . --max-warnings 0",
         "lint:fix": "eslint . --fix",
         "test:node": "pnpm build:tests:node && pnpm c8 mocha",
-        "test:browser": "pnpm build:tests:browser && web-test-runner",
         "build:test": "pnpm build && pnpm build:tests:node && pnpm test:node",
-        "build:lint:test": "pnpm build && pnpm build:tests:node && pnpm lint:fix",
-        "prepublish": "pnpm build"
+        "build:lint:test": "pnpm build && pnpm build:tests:node && pnpm lint:fix"
     },
-    "homepage": "https://github.com/jintekc/did-btc1-js",
+    "homepage": "https://github.com/jintekc/did-btc1-method",
     "bugs": {
-        "url": "https://github.com/jintekc/did-btc1-js/issues"
+        "url": "https://github.com/jintekc/did-btc1-method/issues"
     },
     "repository": {
         "type": "git",
-        "url": "git+ssh://git@github.com/jintekc/did-btc1-js.git"
+        "url": "git+ssh://git@github.com/jintekc/did-btc1-method.git"
     },
     "license": "MPL-2.0",
     "contributors": [
         {
-            "name": "jintekc",
+            "name": "Jintek",
             "url": "https://github.com/jintekc"
         }
     ],
@@ -71,7 +62,6 @@
         "node": ">=22.0.0"
     },
     "dependencies": {
-        "@did-btc1/key-manager": "^1.2.0",
         "@helia/strings": "^4.0.2",
         "@noble/curves": "^1.8.1",
         "@noble/hashes": "^1.5.0",
@@ -112,7 +102,6 @@
         "globals": "^15.11.0",
         "mocha": "^10.8.2",
         "mocha-junit-reporter": "^2.2.1",
-        "node-stdlib-browser": "^1.2.1",
         "rimraf": "^6.0.1",
         "typescript": "^5.6.2",
         "typescript-eslint": "^8.19.1"

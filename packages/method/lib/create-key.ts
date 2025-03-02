@@ -1,5 +1,5 @@
-import { KeyPair } from '../src/utils/keypair.js';
 import { DidBtc1 } from '../src/did-btc1.js';
+import { DEFAULT_CLIENT_CONFIG as bitcoindConfig } from '../src/utils/bitcoind/constants.js';
 // import { versions, networks, idTypes } from '../tests/test-data.js';
 // const idType = idTypes.key;
 // tr
@@ -8,28 +8,23 @@ import { DidBtc1 } from '../src/did-btc1.js';
 // parent tprv: tprv8ZgxMBicQKsPemKdkJo95pEgsZ97bwdKpZDyAdzQdWy1ktyjwjzLSeVdQo8HuRSzukHPPz469jPzH7M6d9fDTAHhK8GmQTYEkvUtsMEjbka
 // public key encoded: mpVSuBsLpCyeKAjbHrTxwF7sLhsdHdNo5C
 // public key hex: 030a6d40df2fc34574e3eae72b10c788b53374243ba3accf0bdcee9d0fac16aec3
-/*
-[
-  108, 191, 191,  79, 209, 154,  79, 229,
-  156,  39, 245, 171, 104, 178, 104,  10,
-  17, 127, 174, 171,  60,  42, 240,  53,
-  127, 149,  41, 206, 136,  64, 201,  42
-]
-*/
-const privateKey = new Uint8Array([
-  189,  38, 143, 201, 181, 132,  46,
-  71, 232,  89, 206, 136, 196, 208,
-  94, 153, 101, 219, 165,  94, 235,
-  242,  29, 164, 176, 161,  99, 193,
-  209,  97,  23, 158
-]);
-const keypair = new KeyPair(privateKey);
-console.log('keypair', keypair);
-console.log('Creating BTC1 Identifier with publicKey:', keypair.publicKey);
+// private key:
+const hexpubkey = [
+  '02', '9e', '07', '01', 'b3',
+  'e1', '17', 'a7', '35', '8e',
+  '9e', '37', '37', '6b', '91',
+  '74', 'da', '15', 'bb', 'e1',
+  '2b', '48', '08', 'c0', '92',
+  'c1', 'c9', 'ab', '46', '39',
+  '49', '4f', '33'
+];
+const bytes = hexpubkey.map(byte => parseInt(byte, 16));
+const pubKeyBytes = new Uint8Array(bytes);
+console.log('Creating BTC1 Key Id with pubKeyBytes:', pubKeyBytes);
 
-const response = await DidBtc1.create({ publicKey: keypair.publicKey });
+const response = await DidBtc1.create({ pubKeyBytes, options: { bitcoindConfig } });
 const clean = JSON.stringify(response, null, 4);
-console.log('Created BTC1 Identifier and Initial Document:', clean);
+console.log('Created BTC1 Key Id and Initial Document:', clean);
 
 // const responses = await Promise.all(
 //     versions

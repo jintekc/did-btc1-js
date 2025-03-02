@@ -11,8 +11,8 @@ export class Btc1KeyManagerError extends Error {
   }
 }
 
-export class Bip340CryptosuiteError extends Btc1KeyManagerError {
+export class CryptosuiteError extends Btc1KeyManagerError {
   constructor(message: string, type?: string) {
-    super(message, type ?? 'Bip340CryptosuiteError', 'Bip340CryptosuiteError');
+    super(message, type ?? 'CryptosuiteError', 'CryptosuiteError');
   }
 }

@@ -5,7 +5,7 @@ export class DidBtc1Error extends Error {
 
   constructor(message: string, type: string = 'DidBtc1Error') {
     super();
-    this.name = type;
+    this.name = 'DidBtc1Error';
     this.type = type;
     this.message = message;
   }

@@ -17,7 +17,6 @@ async function generateKeyPair({ mnemonic, network }: { mnemonic?: string; netwo
   }
   const bitcoinAddress = bech32.encodeFromBytes('bc', pubKeyBytes);
   const did = `did:btc1:${bitcoinAddress}`;
-  console.log({ mnemonic, bitcoinAddress, did });
   const decoded = bech32.decodeToBytes(bitcoinAddress);
   console.log('{ pubKeyBytes, decoded }', { pubKeyBytes, decoded: decoded.bytes });
   console.log(pubKeyBytes.join(' '));

@@ -1,5 +1,5 @@
 {
-  "name": "did-btc1",
+  "name": "did-btc1-js",
   "version": "0.1.0",
   "description": "Monorepo for did:btc1 js/ts implementation and supporting packages.",
   "type": "module",
@@ -18,7 +18,9 @@
     "workflow": "pnpm lint && pnpm install -r && pnpm lint && pnpm build && pnpm build:tests:node",
     "build-test": "pnpm --recursive --stream build && pnpm --recursive --stream build:tests:node && pnpm --recursive --stream test:node",
     "local-key-manager": "pnpm --filter local-key-manager",
-    "method": "pnpm --filter method"
+    "method": "pnpm --filter method",
+    "version": "pnpm version",
+    "version:no-git": "pnpm version --no-commit-hooks --no-git-tag-version"
   },
   "keywords": [
     "did",
@@ -33,7 +35,7 @@
   ],
   "license": "MPL-2.0",
   "homepage": "https://github.com/jintekc/did-btc1-js",
-  "respository": {
+  "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:jintekc/did-btc1-js.git"
   },
@@ -56,12 +58,11 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@sphereon/pex",
-      "classic-level",
-      "esbuild",
       "@ipshipyard/node-datachannel",
+      "classic-level",
       "dtrace-provider",
-      "esbuild"
+      "esbuild",
+      "@sphereon/pex"
     ]
   },
   "dependencies": {

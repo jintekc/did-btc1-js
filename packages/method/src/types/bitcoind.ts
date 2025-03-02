@@ -1,4 +1,4 @@
-import Bitcoind from '../bitcoin/client.js';
+import Bitcoind from '../bitcoin/bitcoin-client.js';
 import { Hex, UnixTimestamp } from './btc1.js';
 
 export interface ReturnFormatOptions {

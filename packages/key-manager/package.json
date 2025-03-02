@@ -1,8 +1,8 @@
 {
   "name": "@did-btc1/key-manager",
-  "version": "1.2.0",
-  "type": "module",
+  "version": "1.3.1",
   "description": "Key manager for did-btc1 using Data Integrity BIP-340 Cryptosuite v0.1",
+  "type": "module",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
@@ -29,7 +29,9 @@
     "test:node": "pnpm build:tests:node && pnpm c8 mocha",
     "build:test": "pnpm build && pnpm build:tests:node && pnpm test:node",
     "build:lint:test": "pnpm build && pnpm build:tests:node && pnpm lint:fix",
-    "prepublish": "pnpm build"
+    "prepublish": "pnpm build",
+    "version": "pnpm version",
+    "version:no-git": "pnpm version --no-commit-hooks --no-git-tag-version"
   },
   "license": "MPL-2.0",
   "contributors": [
@@ -39,7 +41,7 @@
     }
   ],
   "homepage": "https://github.com/jintekc/did-btc1-key-manager",
-  "respository": {
+  "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:jintekc/did-btc1-key-manager.git"
   },
@@ -73,6 +75,7 @@
     "@sphereon/ssi-types": "^0.32.0",
     "@web5/crypto": "^1.0.6",
     "@web5/dids": "^1.2.0",
+    "jsonld-document-loader": "^2.3.0",
     "jsonld-signatures": "^11.5.0",
     "multiformats": "^13.3.2",
     "rdf-canonize": "^4.0.1"

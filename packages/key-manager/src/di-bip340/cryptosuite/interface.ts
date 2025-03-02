@@ -1,4 +1,12 @@
-import { GenerateHashParams, InsecureDocumentParams, ProofOptionsParam, SerializeParams, TransformParams, VerificationParams } from '../../types/cryptosuite.js';
+import {
+  CanonicalizableObject,
+  GenerateHashParams,
+  InsecureDocumentParams,
+  ProofOptionsParam,
+  SerializeParams,
+  TransformParams,
+  VerificationParams
+} from '../../types/cryptosuite.js';
 import {
   CanonicalizedProofConfig,
   DataIntegrityProofType,
@@ -7,7 +15,7 @@ import {
   VerificationResult
 } from '../../types/di-proof.js';
 import { HashHex, SignatureBytes } from '../../types/shared.js';
-import { Bip340Multikey } from '../multikey/multikey.js';
+import { Multikey } from '../multikey/index.js';
 
 /**
  * Interface representing a BIP-340 Cryptosuite.
@@ -22,8 +30,16 @@ export interface ICryptosuite {
   /** @type {string} The name of the cryptosuite */
   cryptosuite: string;
 
-  /** @type {Bip340Multikey} The Multikey used by the cryptosuite */
-  multikey: Bip340Multikey;
+  /** @type {Multikey} The Multikey used by the cryptosuite */
+  multikey: Multikey;
+
+  /**
+   * Canonicalize a document. Toggles between JCS and RDFC based on the value set in the cryptosuite.
+   * @param {CanonicalizableObject} object The document to canonicalize.
+   * @returns {string} The canonicalized document.
+   * @throws {CryptosuiteError} if the document cannot be canonicalized.
+   */
+  canonicalize(object: CanonicalizableObject): string | Promise<string>;
 
   /**
    * Create a proof for an insecure document.
@@ -32,14 +48,14 @@ export interface ICryptosuite {
    * @param {ProofOptions} params.options The options to use when creating the proof.
    * @returns {Proof} The proof for the document.
    */
-  createProof({ document, options }: InsecureDocumentParams): Proof;
+  createProof({ document, options }: InsecureDocumentParams): Promise<Proof>;
 
   /**
    * Verify a proof for a secure document.
    * @param {SecureDocument} secure The secure document to verify.
    * @returns {VerificationResult} The result of the verification.
    */
-  verifyProof(secure: SecureDocument): VerificationResult;
+  verifyProof(secure: SecureDocument): Promise<VerificationResult>;
 
   /**
    * Transform a document (secure or insecure) into canonical form.
@@ -47,9 +63,9 @@ export interface ICryptosuite {
    * @param {DocumentParams} params.document The document to transform: secure or insecure.
    * @param {ProofOptions} params.options The options to use when transforming the proof.
    * @returns {string} The canonicalized document.
-   * @throws {Bip340CryptosuiteError} if the document cannot be transformed.
+   * @throws {CryptosuiteError} if the document cannot be transformed.
    */
-  transformDocument({ document, options }: TransformParams): string;
+  transformDocument({ document, options }: TransformParams): Promise<string>;
 
   /**
    * Generate a hash of the canonical proof configuration and document.
@@ -65,9 +81,9 @@ export interface ICryptosuite {
    * @param {ProofOptionsParam} params The parameters to use when transforming the document.
    * @param {ProofOptions} params.options The options to use when transforming the proof.
    * @returns {string} The canonicalized proof configuration.
-   * @throws {Bip340CryptosuiteError} if the proof configuration cannot be canonicalized.
+   * @throws {CryptosuiteError} if the proof configuration cannot be canonicalized.
    */
-  proofConfiguration({ options }: ProofOptionsParam): CanonicalizedProofConfig;
+  proofConfiguration({ options }: ProofOptionsParam): Promise<CanonicalizedProofConfig>;
 
   /**
    * Serialize the proof into a byte array.
@@ -75,7 +91,7 @@ export interface ICryptosuite {
    * @param {string} params.hashData The canonicalized proof configuration.
    * @param {ProofOptions} params.options The options to use when serializing the proof.
    * @returns {SignatureBytes} The serialized proof.
-   * @throws {Bip340CryptosuiteError} if the multikey does not match the verification method.
+   * @throws {CryptosuiteError} if the multikey does not match the verification method.
    */
   proofSerialization({ hashData, options }: SerializeParams): SignatureBytes;
 
@@ -86,7 +102,7 @@ export interface ICryptosuite {
    * @param {Uint8Array} params.proofBytes The serialized proof.
    * @param {ProofOptions} params.options The options to use when verifying the proof.
    * @returns {boolean} True if the proof is verified, false otherwise.
-   * @throws {Bip340CryptosuiteError} if the multikey does not match the verification method.
+   * @throws {CryptosuiteError} if the multikey does not match the verification method.
    */
   proofVerification({ hashData, proofBytes, options }: VerificationParams): boolean;
 }

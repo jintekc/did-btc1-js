@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../../../tsconfig.json",
   "compilerOptions": {
     "outDir": "compiled",
     "declarationDir": "compiled/types",
@@ -7,7 +7,7 @@
   },
   "include": [
     "../src",
-    "."
+    ".",
   ],
   "exclude": [
     "./compiled"

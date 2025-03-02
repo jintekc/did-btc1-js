@@ -8,7 +8,6 @@ import {
 } from '@web5/dids';
 import { networks } from 'bitcoinjs-lib';
 import { ClientConfig } from './bitcoind.js';
-import { Jwk } from '@web5/crypto';
 
 /** Classes */
 export class BtcNetworks {
@@ -54,7 +53,7 @@ export interface DidBtc1CreateOptions {
 }
 export interface DidBtc1CreateParams {
     /** Pubkey Bytes used to generate the id required if idType = key */
-    publicKey?: PublicKeyBytes;
+    pubKeyBytes?: PublicKeyBytes;
     /** Intermediate Document supplied by user if idType = external */
     intermediateDocument?: IntermediateDocument;
     /** Options for creating a Decentralized Identifier (DID) using the DID BTC1 method */
@@ -62,7 +61,7 @@ export interface DidBtc1CreateParams {
 }
 export interface BeaconServicesParams {
     network: networks.Network
-    publicKey: PublicKeyBytes;
+    pubKeyBytes: PublicKeyBytes;
     beaconType?: string;
 }
 export interface GenerateBitcoinAddrs {
@@ -88,12 +87,11 @@ export interface Btc1IdentifierComponents extends Did {
 export interface IntermediateVerificationMethod extends DidVerificationMethod {
     id: string;
     type: string;
-    controller: Placeholder;
+    controller: 'did:btc1:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
     publicKeyMultibase: string;
 }
-export type Placeholder = 'did:btc1:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
 export interface IntermediateDocument extends DidDocument {
-    id:  Placeholder;
+    id: 'did:btc1:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
     verificationMethod: IntermediateVerificationMethod[];
 }
 export interface ReadExternal {
@@ -195,7 +193,7 @@ export type CreateIdentifierParams = RequireOnly<DidBtc1CreateOptions, 'network'
 export type ReadIdentifierParams = RequireOnly<DidBtc1CreateOptions, 'network' & 'version'> & {
   genesisBytes: Uint8Array;
 }
-export type CreateDeterministic = Required<Pick<DidBtc1CreateOptions, 'network' | 'version'> & Pick<DidBtc1CreateParams, 'publicKey'>>;
+export type CreateDeterministic = Required<Pick<DidBtc1CreateOptions, 'network' | 'version'> & Pick<DidBtc1CreateParams, 'pubKeyBytes'>>;
 export type CreateExternal = Required<Pick<DidBtc1CreateOptions, 'network' | 'version'> & Pick<DidBtc1CreateParams, 'intermediateDocument'>>;
 export type ReadDeterministic = CreateDeterministic;
 
@@ -219,12 +217,8 @@ export type InvokePayloadParams = {
 export type Bytes = Uint8Array;
 export type Signature = Bytes;
 export type Hex = Bytes | string;
-export type PrivateKey = Bytes;
-export type PublicKey = Bytes;
-export type KeyPair = {
-  privateKey: PrivateKey;
-  publicKey: PublicKey
-};
+export type PrivKey = Hex;
+export type PubKey = Hex;
 export type UnixTimestamp = number;
 export type TargetDocumentParams = {
   initialDocument: Btc1DidDocument;
@@ -253,30 +247,19 @@ export type GetSigningMethod = {
   didDocument: DidDocument;
   methodId?: string;
 }
-export class Btc1VerificationMethod implements DidVerificationMethod {
-  id: string;
-  type: string;
-  controller: string;
-  publicKeyMultibase?: string | undefined;
-  constructor(id: string, type: string, controller: string, publicKeyMultibase?: string) {
-    this.id = id;
-    this.type = type;
-    this.controller = controller;
-    this.publicKeyMultibase = publicKeyMultibase;
-  }
-}
+
 /** Classes */
 export class DidDocument implements IDidDocument {
   '@context'?: string | (string | Record<string, any>)[] | undefined;
   id: string;
   alsoKnownAs?: string[] | undefined;
   controller?: string | string[] | undefined;
-  verificationMethod?: Btc1VerificationMethod[] | undefined;
-  assertionMethod?: (string | Btc1VerificationMethod)[] | undefined;
-  authentication?: (string | Btc1VerificationMethod)[] | undefined;
-  keyAgreement?: (string | Btc1VerificationMethod)[] | undefined;
-  capabilityDelegation?: (string | Btc1VerificationMethod)[] | undefined;
-  capabilityInvocation?: (string | Btc1VerificationMethod)[] | undefined;
+  verificationMethod?: DidVerificationMethod[] | undefined;
+  assertionMethod?: (string | DidVerificationMethod)[] | undefined;
+  authentication?: (string | DidVerificationMethod)[] | undefined;
+  keyAgreement?: (string | DidVerificationMethod)[] | undefined;
+  capabilityDelegation?: (string | DidVerificationMethod)[] | undefined;
+  capabilityInvocation?: (string | DidVerificationMethod)[] | undefined;
   service?: DidService[] | undefined;
 
   constructor(id: string) {

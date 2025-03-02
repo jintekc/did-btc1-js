@@ -1,10 +1,10 @@
-import { Bip340Cryptosuite } from '../../types/cryptosuite.js';
 import {
   AddProofParams,
   SecureDocument,
   VerificationResult,
   VerifyProofParams
 } from '../../types/di-proof.js';
+import { Cryptosuite } from '../cryptosuite/index.js';
 
 /**
  * Interface representing a BIP-340 DataIntegrityProof.
@@ -13,8 +13,8 @@ import {
  * @type {IDataIntegrityProof}
  */
 export interface IDataIntegrityProof {
-  /** @type {Bip340Cryptosuite} Bip340CryptosuiteJcs or Bip340CryptosuiteRdfc class object  */
-  cryptosuite: Bip340Cryptosuite;
+  /** @type {Cryptosuite} CryptosuiteJcs or CryptosuiteRdfc class object  */
+  cryptosuite: Cryptosuite;
 
   /**
    * Add a proof to a document.
@@ -23,7 +23,7 @@ export interface IDataIntegrityProof {
    * @param {ProofOptions} params.options Options for adding a proof to a document.
    * @returns {SecureDocument} A document with a proof added.
    */
-  addProof({ document, options }: AddProofParams): SecureDocument;
+  addProof({ document, options }: AddProofParams): Promise<SecureDocument>;
 
   /**
    * Verify a proof.
@@ -35,5 +35,11 @@ export interface IDataIntegrityProof {
    * @param {VerifyProofParams} params.expectedChallenge The expected challenge of the proof.
    * @returns {VerificationResult} The result of verifying the proof.
    */
-  verifyProof({ mediaType, document, expectedPurpose, expectedDomain, expectedChallenge }: VerifyProofParams): VerificationResult;
+  verifyProof({
+    mediaType,
+    document,
+    expectedPurpose,
+    expectedDomain,
+    expectedChallenge
+  }: VerifyProofParams): Promise<VerificationResult>;
 }

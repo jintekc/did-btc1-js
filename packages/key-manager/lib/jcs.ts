@@ -2,54 +2,62 @@ import { sha256 } from '@noble/hashes/sha256';
 import * as jcs from '@web5/crypto';
 import { base58btc } from 'multiformats/bases/base58';
 import {
+  CanonicalizableObject,
   GenerateHashParams,
   InsecureDocumentParams,
   ProofOptionsParam,
   SerializeParams,
   TransformParams,
   VerificationParams
-} from '../../types/cryptosuite.js';
+} from '../src/types/cryptosuite.js';
 import {
   CanonicalizedProofConfig,
   DataIntegrityProofType,
   Proof,
   SecureDocument,
   VerificationResult
-} from '../../types/di-proof.js';
-import { HashHex, SignatureBytes } from '../../types/shared.js';
-import { Bip340CryptosuiteError } from '../../utils/error.js';
-import { Bip340Multikey } from '../multikey/multikey.js';
-import { ICryptosuite } from './interface.js';
+} from '../src/types/di-proof.js';
+import { HashHex, SignatureBytes } from '../src/types/shared.js';
+import { CryptosuiteError } from '../src/utils/error.js';
+import { Multikey } from '../src/di-bip340/multikey/index.js';
+import { ICryptosuite } from '../src/di-bip340/cryptosuite/interface.js';
 
 /**
  * Implements section
- * {@link https://dcdpr.github.io/data-integrity-schnorr-secp256k1/#schnorr-secp256k1-jcs-2025 | 3.3 bip-340-jcs-2025}
- * of the {@link https://dcdpr.github.io/data-integrity-schnorr-secp256k1 | Data Integrity BIP-340 Cryptosuite} spec
+ * {@link https://dcdpr.github.io/data-integrity-schnorr-secp256k1/#schnorr-secp256k1-jcs-2025 | 3.3 schnorr-secp256k1-jcs-2025}
+ * of the
+ * {@link https://dcdpr.github.io/data-integrity-schnorr-secp256k1 | Data Integrity Schnorr Secp256k1 Cryptosuite v0.1}
+ * specification
  * @export
- * @class Bip340CryptosuiteJcs
- * @type {Bip340CryptosuiteJcs}
+ * @class CryptosuiteJcs
+ * @type {CryptosuiteJcs}
  */
-export class Bip340CryptosuiteJcs implements ICryptosuite {
+export class CryptosuiteJcs implements ICryptosuite {
   /** @type {DataIntegrityProofType} The type of proof produced by the Cryptosuite */
   public type: DataIntegrityProofType = 'DataIntegrityProof';
 
   /** @type {string} The name of the cryptosuite */
-  public cryptosuite: string = 'bip340-jcs-2025';
+  public cryptosuite: string = 'schnorr-secp256k1-jcs-2025';
 
-  /** @type {Bip340Multikey} The multikey used to sign and verify proofs */
-  public multikey: Bip340Multikey;
+  /** @type {Multikey} The multikey used to sign and verify proofs */
+  public multikey: Multikey;
 
   /**
-   * Creates an instance of Bip340CryptosuiteJcs.
+   * Creates an instance of CryptosuiteJcs.
    * @constructor
-   * @param {Bip340Multikey} multikey The parameters to create the multikey
+   * @param {Multikey} multikey The parameters to create the multikey
    */
-  constructor(multikey: Bip340Multikey) {
+  constructor(multikey: Multikey) {
     this.multikey = multikey;
   }
 
+  /** @see ICryptosuite.canonicalize */
+  public canonicalize(object: CanonicalizableObject): string {
+    return jcs.canonicalize(object);
+  }
+
   /** @see ICryptosuite.createProof */
-  public createProof({ document, options }: InsecureDocumentParams): Proof {
+  public async createProof({ document, options }: InsecureDocumentParams): Promise<Proof> {
     // Make a copy of the options as a Proof
     const proof = options as Proof;
     // Get the context from the document
@@ -57,9 +65,9 @@ export class Bip340CryptosuiteJcs implements ICryptosuite {
     // If a context exists, add it to the proof
     if (context) proof['@context'] = context;
     // Transform the document into a canonical form
-    const canonicalDocument = this.transformDocument({ document, options });
+    const canonicalDocument = await this.transformDocument({ document, options });
     // Create a canonical form of the proof configuration
-    const canonicalProofConfig = this.proofConfiguration({ options: proof });
+    const canonicalProofConfig = await this.proofConfiguration({ options: proof });
     // Generate a hash of the canonical proof configuration and canonical document
     const hashData = this.generateHash({ canonicalProofConfig, canonicalDocument });
     // Serialize the proof
@@ -71,15 +79,15 @@ export class Bip340CryptosuiteJcs implements ICryptosuite {
   }
 
   /** @see ICryptosuite.verifyProof */
-  public verifyProof(secure: SecureDocument): VerificationResult {
+  public async verifyProof(secure: SecureDocument): Promise<VerificationResult> {
     // Get the proof from the secure document as a Proof to act as the options
     const options = secure.proof as Proof;
     // Make a copy of the options as a Proof
     const proof = secure.proof as Proof;
     // Transform the secure document into a canonical form
-    const canonicalDocument = this.transformDocument({ document: secure, options: proof });
+    const canonicalDocument = await this.transformDocument({ document: secure, options: proof });
     // Create a canonical form of the proof configuration
-    const canonicalProofConfig = this.proofConfiguration({ options });
+    const canonicalProofConfig = await this.proofConfiguration({ options });
     // Decode the proof value from base
     const proofBytes = base58btc.decode(options.proofValue);
     // Generate a hash of the canonical proof configuration and canonical document
@@ -93,23 +101,23 @@ export class Bip340CryptosuiteJcs implements ICryptosuite {
   }
 
   /** @see ICryptosuite.transformDocument */
-  public transformDocument({ document, options }: TransformParams): string {
+  public async transformDocument({ document, options }: TransformParams): Promise<string> {
     // Error type for the transformDocument method
     const ERROR_TYPE = 'PROOF_TRANSFORMATION_ERROR';
     // Get the type from the options
     const { type } = options;
     // If the type does not match the cryptosuite type, throw an error
     if (type !== this.type) {
-      throw new Bip340CryptosuiteError(`Options type ${type} !== cryptosuite type ${this.type}`, ERROR_TYPE);
+      throw new CryptosuiteError(`Options type ${type} !== cryptosuite type ${this.type}`, ERROR_TYPE);
     }
     // Get the cryptosuite from the options
     const { cryptosuite } = options;
     // If the cryptosuite does not match the cryptosuite name, throw an error
     if (cryptosuite !== this.cryptosuite) {
-      throw new Bip340CryptosuiteError('Proof options cryptosuite name does not match cryptosuite name', ERROR_TYPE);
+      throw new CryptosuiteError('Proof options cryptosuite name does not match cryptosuite name', ERROR_TYPE);
     }
     // Return the JCS canonicalized document
-    return jcs.canonicalize(document);
+    return this.canonicalize(document);
   }
 
   /** @see ICryptosuite.generateHash */
@@ -125,23 +133,23 @@ export class Bip340CryptosuiteJcs implements ICryptosuite {
   }
 
   /** @see ICryptosuite.proofConfiguration */
-  public proofConfiguration({ options }: ProofOptionsParam): CanonicalizedProofConfig {
+  public async proofConfiguration({ options }: ProofOptionsParam): Promise<CanonicalizedProofConfig> {
     // Error type for the proofConfiguration method
     const ERROR_TYPE = 'PROOF_CONFIGURATION_ERROR';
     // Get the type from the options
     const { type } = options;
     // If the type does not match the cryptosuite type, throw
     if (type !== this.type) {
-      throw new Bip340CryptosuiteError(`Options type ${type} !== ${this.type}`, ERROR_TYPE);
+      throw new CryptosuiteError(`Options type ${type} !== ${this.type}`, ERROR_TYPE);
     }
     // Get the cryptosuite from the
     const { cryptosuite } = options;
     // If the cryptosuite does not match the cryptosuite name, throw
     if (cryptosuite !== this.cryptosuite) {
-      throw new Bip340CryptosuiteError(`Options cryptosuite ${cryptosuite} !== ${this.cryptosuite}`, ERROR_TYPE);
+      throw new CryptosuiteError(`Options cryptosuite ${cryptosuite} !== ${this.cryptosuite}`, ERROR_TYPE);
     }
     // Return the JCS canonicalized proof configuration
-    return jcs.canonicalize(options);
+    return this.canonicalize(options);
   }
 
   /** @see ICryptosuite.proofSerialization */
@@ -154,7 +162,7 @@ export class Bip340CryptosuiteJcs implements ICryptosuite {
     const fullId = this.multikey.fullId();
     // If the verification method does not match the multikey fullId, throw an error
     if (vm !== fullId) {
-      throw new Bip340CryptosuiteError(`Multikey fullId ${fullId} !== options verificationMethod ${vm}`, ERROR_TYPE);
+      throw new CryptosuiteError(`Multikey fullId ${fullId} !== options verificationMethod ${vm}`, ERROR_TYPE);
     }
     // Return the signed hashData
     return this.multikey.sign(hashData);
@@ -170,7 +178,7 @@ export class Bip340CryptosuiteJcs implements ICryptosuite {
     const fullId = this.multikey.fullId();
     // If the verification method does not match the multikey fullId, throw an error
     if (vm !== fullId) {
-      throw new Bip340CryptosuiteError(`Multikey fullId ${fullId} !== verificationMethod ${vm}`, ERROR_TYPE);
+      throw new CryptosuiteError(`Multikey fullId ${fullId} !== verificationMethod ${vm}`, ERROR_TYPE);
     }
     // Return the verified hashData and proofBytes
     return this.multikey.verify(hashData, proofBytes);

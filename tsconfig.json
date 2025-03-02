@@ -11,10 +11,14 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "declarationDir": "dist/types",
-    "outDir": "dist"
+    "outDir": "dist/esm"
   },
+  "include": [
+    "src",
+  ],
   "exclude": [
     "eslint.config.cjs",
-    "node_modules"
+    "node_modules",
+    "lib"
   ]
 }

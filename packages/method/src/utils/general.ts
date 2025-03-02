@@ -1,23 +1,23 @@
-import { schnorr } from '@noble/curves/secp256k1';
+import { secp256k1 } from '@noble/curves/secp256k1';
 import { sha256 } from '@noble/hashes/sha256';
-import { utils, CURVE, getPublicKey } from '@noble/secp256k1';
+import { getPublicKey, utils } from '@noble/secp256k1';
 import { HDKey } from '@scure/bip32';
 import { generateMnemonic, mnemonicToSeed } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import { canonicalize } from '@web5/crypto';
-import { JSONObject } from '../exts.js';
-import { KeyPair } from '../types/btc1.js';
-import { HdWallet } from '../types/crypto.js';
+import { JSONObject } from './exts.js';
+
+type HdWallet = { mnemonic: string, hdkey: HDKey };
 
 /**
- * Static class of general utility functions for the did-btc1 spec implementation
- * @class GeneralUtils
- * @type {GeneralUtils}
+ * @class
+ * @name GeneralUtils
+ * @description General utility functions for the did-btc1 spec
  */
 export class GeneralUtils {
   /**
-   * Converts a bigint to a buffer
-   * @static
+   * @static @method
+   * @description Converts a bigint to a buffer
    * @param {bigint} value The bigint to convert
    * @returns {Buffer} The buffer representation of the bigint
    */
@@ -26,29 +26,29 @@ export class GeneralUtils {
     return Buffer.from(hex, 'hex');
   }
 
-
   /**
-   * Generate a new Schnorr key pair
-   * @static
-   * @returns {KeyPair}
-   * @throws {Error} if the private key is invalid
+   * @static @method
+   * @description Converts a buffer to a bigint
+   * @param {boolean} compressed The buffer to convert
+   * @returns {Uint8Array} The bigint representation of the buffer
+   * @throws {Error} if the privateKey is not valid
    */
-  static generateSchnorrKeyPair(): KeyPair {
+  static generatePubKeyBytes(compressed?: boolean): Uint8Array {
     // Generate a random private key
-    const privateKey = schnorr.utils.randomPrivateKey();
-    // Ensure the private key is valid, throw an error if not valid
-    if (!utils.isValidPrivateKey(privateKey)) {
+    const privateKey = utils.randomPrivateKey();
+    // Ensure the private key is valid
+    const isValid = utils.isValidPrivateKey(privateKey);
+    // If the private key is invalid, throw an error
+    if (!isValid) {
       throw new Error('Invalid private key');
     }
-    // Generate public key from private key
-    const publicKey = schnorr.getPublicKey(privateKey);
-    // Return the keypair
-    return { privateKey, publicKey };
+    // Generate the public key bytes
+    return getPublicKey(privateKey, compressed ?? true);
   }
 
   /**
-   * Generates a new mnemonic phrase and HD wallet
    * @static @async @method
+   * @description Generates a new mnemonic phrase and HD wallet
    * @returns {HdWallet} Promise resolving to a new hdwallet object w/ mnemonic and hdkey
    * @throws {Error} if the public key bytes cannot be derived
    */
@@ -66,17 +66,9 @@ export class GeneralUtils {
     return { mnemonic, hdkey };
   }
 
-  static generateCompressedSecp256k1KeyPair(){
-    const privateKey = utils.randomPrivateKey();
-    if(!utils.isValidPrivateKey(privateKey)) {
-      throw new Error('Invalid private key');
-    }
-    return { privateKey, publicKey: getPublicKey(privateKey, true) };
-  };
-
   /**
-   * Recovers an HDKey from a mnemonic phrase
    * @static @async @method
+   * @description Recovers an HDKey from a mnemonic phrase
    * @param {string} mnemonic The mnemonic phrase to recover the HDKey from
    * @param {Uint8Array} seed Optional seed to recover the HDKey from
    * @returns {HDKey} Promise resolving to the recovered HDKey
@@ -95,8 +87,8 @@ export class GeneralUtils {
   }
 
   /**
-   * Recovers a secp256k1 privateKey from its original entropy
-   * @static
+   * @static @method
+   * @description Recovers a secp256k1 privateKey from its original entropy
    * @param {Uint8Array} xorEntropy The original entropy to recover the privateKey from
    * @param {Uint8Array} salt The salt used to tweak the privateKey
    * @returns {Uint8Array} The recovered privateKey
@@ -113,7 +105,7 @@ export class GeneralUtils {
     // Convert hexEntropy to BigInt
     const privateKey = BigInt(`0x${hexEntropy}`);
     // Ensure private key is in valid secp256k1 range1
-    if (privateKey < BigInt(1) || privateKey >= CURVE.n) {
+    if (privateKey < BigInt(1) || privateKey >= secp256k1.CURVE.n) {
       throw new Error('Invalid private key derived from entropy');
     }
     // The valid 32-byte private key
@@ -121,8 +113,8 @@ export class GeneralUtils {
   }
 
   /**
-   * Recovers a secp256k1 privateKey from its original entropy
-   * @static
+   * @static @method
+   * @description Recovers a secp256k1 privateKey from its original entropy
    * @param {Uint8Array} entropy The entropy to recover the privateKey from
    * @returns {Uint8Array} The recovered privateKey
    * @throws {Error} if the privateKey cannot be recovered
@@ -137,7 +129,7 @@ export class GeneralUtils {
     // Convert hexEntropy to BigInt
     const privateKey = BigInt(`0x${hexEntropy}`);
     // Ensure private key is in valid secp256k1 range1
-    if (privateKey < BigInt(1) || privateKey >= CURVE.n) {
+    if (privateKey < BigInt(1) || privateKey >= secp256k1.CURVE.n) {
       throw new Error('Invalid private key derived from entropy');
     }
     // The valid 32-byte private key
@@ -145,8 +137,8 @@ export class GeneralUtils {
   }
 
   /**
-   * Tweak the entropy with a salt using XOR
-   * @static
+   * @static @method
+   * @description Tweak the entropy with a salt using XOR
    * @param {Uint8Array} entropy The entropy to tweak
    * @param {Uint8Array} salt The salt to tweak the entropy with
    * @returns {Uint8Array} The tweaked entropy
@@ -160,8 +152,8 @@ export class GeneralUtils {
   }
 
   /**
-   * Untweak the entropy with a salt using XNOR
-   * @static
+   * @static @method
+   * @description Untweak the entropy with a salt using XNOR
    * @param {Uint8Array} tweakedEntropy The tweaked entropy to untweak
    * @param {Uint8Array} salt The salt to untweak the entropy with
    * @returns {Uint8Array} The original entropy
@@ -175,8 +167,8 @@ export class GeneralUtils {
   }
 
   /**
-   * Recovers an HDKey from a mnemonic phrase
    * @static @async @method
+   * @description Recovers an HDKey from a mnemonic phrase
    * @param {string} mnemonic The mnemonic phrase to recover the HDKey from
    * @param {string} path The path to derive the child key from
    * @returns {Uint8Array} Promise resolving to the recovered private key bytes
@@ -198,8 +190,8 @@ export class GeneralUtils {
   }
 
   /**
-   * Derives a child key from an HDKey
-   * @static
+   * @static @method
+   * @description Derives a child key from an HDKey
    * @param {HDKey} hdkey The HDKey to derive the child key from
    * @param {string} path The path to derive the child key from
    * @returns {HDKey} A Promise resolving to the child key
@@ -217,8 +209,8 @@ export class GeneralUtils {
   }
 
   /**
-   * Generates a sh256 hash of the a canonicalized object
-   * @static
+   * @static @method
+   * @description Generates a sh256 hash of the a canonicalized object
    * @param {JSONObject} data The data to hash
    * @returns {Uint8Array} The sha256 hash bytes of a canonicalized JSON object
    */

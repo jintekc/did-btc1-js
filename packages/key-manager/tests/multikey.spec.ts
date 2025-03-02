@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Bip340Multikey } from '../src/di-bip340/multikey/multikey.js';
+import { Multikey } from '../src/di-bip340/multikey/index.js';
 import { Btc1KeyManagerError } from '../src/index.js';
 import ObjectUtils from '../src/utils/object-utils.js';
 
@@ -40,7 +40,7 @@ describe('Multikey', () => {
    */
   describe('with incomplete parameters: { id, controller }', () => {
     it('should throw Btc1KeyManagerError with message "Must pass public or private key"', () => {
-      expect(() => new Bip340Multikey({ id, controller }))
+      expect(() => new Multikey({ id, controller }))
         .to.throw(Btc1KeyManagerError, 'Must pass publicKey, privateKey or both');
     });
   });
@@ -49,10 +49,10 @@ describe('Multikey', () => {
    * All parameters
    */
   describe('with all parameters: { id, controller, privateKey, publicKey }', () => {
-    const multikey = new Bip340Multikey({ id, controller, privateKey, publicKey });
+    const multikey = new Multikey({ id, controller, privateKey, publicKey });
 
-    it('should successfully construct a new Bip340Multikey', () => {
-      expect(multikey).to.exist.and.to.be.instanceOf(Bip340Multikey);
+    it('should successfully construct a new Multikey', () => {
+      expect(multikey).to.exist.and.to.be.instanceOf(Multikey);
     });
 
     it('should have proper variables: id, controller, privateKey, publicKey', () => {
@@ -70,147 +70,19 @@ describe('Multikey', () => {
       expect(signature.length).to.equal(64);
     });
 
-    it('should verify a valid schnorr signature that was produced by the Bip340Multikey', () => {
+    it('should verify a valid schnorr signature that was produced by the Multikey', () => {
       expect(multikey.verify(message, validSignature)).to.be.true;
     });
 
-    it('should verify that an invalid schnorr signature was not produced by the Bip340Multikey', () => {
+    it('should verify that an invalid schnorr signature was not produced by the Multikey', () => {
       expect(multikey.verify(message, invalidSignature)).to.be.false;
     });
 
-    it('should encode publicKey from bytes to Bip340Multikey Format', () => {
+    it('should encode publicKey from bytes to Multikey Format', () => {
       expect(multikey.encode()).to.equal(publicKeyMultibase);
     });
 
-    it('should decode publicKeyMultibase from Bip340Multikey Format to bytes', () => {
-      const publicKeyMultibaseBytes = multikey.decode(publicKeyMultibase);
-      const prefixBytes = publicKeyMultibaseBytes.subarray(0, 2);
-      expect(publicKeyMultibaseBytes).to.exist.and.to.be.instanceOf(Uint8Array);
-      expect(prefixBytes).to.exist.and.to.be.instanceOf(Uint8Array);
-      expect(publicKeyMultibaseBytes.subarray(2).every((b, i) => expect(b).to.equal(publicKey[i])));
-      expect(prefixBytes.every((b, i) => expect(b).to.equal(prefix[i])));
-    });
-
-    it('should have a matching full id', () => {
-      expect(multikey.fullId()).to.equal(fullId);
-    });
-
-    it('should return a valid, matching verification method', () => {
-      expect(ObjectUtils.deepEqual(multikey.toVerificationMethod(), verificationMethod)).to.equal(true);
-    });
-
-    it('should construct a valid Bip340Multikey with matching data given a valid verification method', () => {
-      const multikeyFromVm = multikey.fromVerificationMethod(verificationMethod);
-      expect(multikeyFromVm).to.exist.and.to.be.instanceOf(Bip340Multikey);
-      expect(multikeyFromVm.id).to.equal(id);
-      expect(multikeyFromVm.controller).to.equal(controller);
-      expect(multikeyFromVm.publicKey).to.exist.and.to.be.instanceOf(Uint8Array);
-      multikeyFromVm.publicKey?.every((b, i) => expect(b).to.equal(publicKey[i]));
-    });
-
-  });
-
-  /**
-   * Public Key only
-   */
-  describe('with partial parameters: { id, controller, publicKey }', () => {
-    const multikey = new Bip340Multikey({ id, controller, publicKey });
-
-    it('should successfully construct a new Bip340Multikey with publicKey only', () => {
-      expect(multikey).to.exist.and.to.be.instanceOf(Bip340Multikey);
-      expect(multikey.publicKey).to.exist.and.to.be.instanceOf(Uint8Array);
-    });
-
-    it('should have proper variables: id, controller, privateKey, publicKey', () => {
-      expect(multikey.id).to.equal(id);
-      expect(multikey.controller).to.equal(controller);
-      expect(multikey.privateKey).to.be.undefined;
-      expect(multikey.publicKey).to.exist.and.to.be.instanceOf(Uint8Array);
-      multikey.publicKey?.every((b, i) => expect(b).to.equal(publicKey[i]));
-    });
-
-    it('should throw Btc1KeyManagerError with message "No private key"', () => {
-      expect(() => multikey.sign(message))
-        .to.throw(Btc1KeyManagerError, 'No private key');
-    });
-
-    it('should verify that a valid schnorr signature was produced by the Bip340Multikey', () => {
-      expect(multikey.verify(message, validSignature)).to.be.true;
-    });
-
-    it('should verify that an invalid schnorr signature was not produced by the Bip340Multikey', () => {
-      expect(multikey.verify(message, invalidSignature)).to.be.false;
-    });
-
-    it('should encode publicKey from bytes to Bip340Multikey Format', () => {
-      expect(multikey.encode()).to.equal(publicKeyMultibase);
-    });
-
-    it('should decode publicKeyMultibase from Bip340Multikey Format to bytes', () => {
-      const publicKeyMultibaseBytes = multikey.decode(publicKeyMultibase);
-      const prefixBytes = publicKeyMultibaseBytes.subarray(0, 2);
-      expect(publicKeyMultibaseBytes).to.exist.and.to.be.instanceOf(Uint8Array);
-      expect(prefixBytes).to.exist.and.to.be.instanceOf(Uint8Array);
-      expect(publicKeyMultibaseBytes.subarray(2).every((b, i) => expect(b).to.equal(publicKey[i])));
-      expect(prefixBytes.every((b, i) => expect(b).to.equal(prefix[i])));
-    });
-
-    it('should have a matching full id', () => {
-      expect(multikey.fullId()).to.equal(fullId);
-    });
-
-    it('should return a valid, matching verification method', () => {
-      expect(ObjectUtils.deepEqual(multikey.toVerificationMethod(), verificationMethod)).to.equal(true);
-    });
-
-    it('should construct a valid Bip340Multikey with matching data given a valid verification method', () => {
-      const multikeyFromVm = multikey.fromVerificationMethod(verificationMethod);
-      expect(multikeyFromVm).to.exist.and.to.be.instanceOf(Bip340Multikey);
-      expect(multikeyFromVm.id).to.equal(id);
-      expect(multikeyFromVm.controller).to.equal(controller);
-      expect(multikeyFromVm.publicKey).to.exist.and.to.be.instanceOf(Uint8Array);
-      multikeyFromVm.publicKey?.every((b, i) => expect(b).to.equal(publicKey[i]));
-    });
-  });
-
-  /**
-   * Private Key only
-   */
-  describe('with partial parameters: { id, controller, privateKey }', () => {
-    const multikey = new Bip340Multikey({ id, controller, privateKey });
-
-    it('should successfully construct a new Bip340Multikey with a privateKey and a publicKey', () => {
-      expect(multikey).to.exist.and.to.be.instanceOf(Bip340Multikey);
-    });
-
-    it('should have proper variables: id, controller, privateKey, publicKey', () => {
-      expect(multikey.id).to.equal(id);
-      expect(multikey.controller).to.equal(controller);
-      expect(multikey.publicKey).to.exist.and.to.be.instanceOf(Uint8Array);
-      expect(multikey.privateKey).to.exist.and.to.be.instanceOf(Uint8Array);
-      multikey.privateKey?.every((b, i) => expect(b).to.equal(privateKey[i]));
-      multikey.publicKey?.every((b, i) => expect(b).to.equal(publicKey[i]));
-    });
-
-    it('should create a valid schnorr signature', () => {
-      const signature = multikey.sign(message);
-      expect(signature).to.exist.and.to.be.instanceOf(Uint8Array);
-      expect(signature.length).to.equal(64);
-    });
-
-    it('should verify that a valid schnorr signature was produced by the Bip340Multikey', () => {
-      expect(multikey.verify(message, validSignature)).to.be.true;
-    });
-
-    it('should verify that an invalid schnorr signature was not produced by the Bip340Multikey', () => {
-      expect(multikey.verify(message, invalidSignature)).to.be.false;
-    });
-
-    it('should encode publicKey from bytes to Bip340Multikey Format', () => {
-      expect(multikey.encode()).to.equal(publicKeyMultibase);
-    });
-
-    it('should decode publicKeyMultibase from Bip340Multikey Format to bytes', () => {
+    it('should decode publicKeyMultibase from Multikey Format to bytes', () => {
       const publicKeyMultibaseBytes = multikey.decode(publicKeyMultibase);
       const prefixBytes = publicKeyMultibaseBytes.subarray(0, 2);
       expect(publicKeyMultibaseBytes).to.exist.and.to.be.instanceOf(Uint8Array);
@@ -229,7 +101,135 @@ describe('Multikey', () => {
 
     it('should construct a valid Multikey with matching data given a valid verification method', () => {
       const multikeyFromVm = multikey.fromVerificationMethod(verificationMethod);
-      expect(multikeyFromVm).to.exist.and.to.be.instanceOf(Bip340Multikey);
+      expect(multikeyFromVm).to.exist.and.to.be.instanceOf(Multikey);
+      expect(multikeyFromVm.id).to.equal(id);
+      expect(multikeyFromVm.controller).to.equal(controller);
+      expect(multikeyFromVm.publicKey).to.exist.and.to.be.instanceOf(Uint8Array);
+      multikeyFromVm.publicKey?.every((b, i) => expect(b).to.equal(publicKey[i]));
+    });
+
+  });
+
+  /**
+   * Public Key only
+   */
+  describe('with partial parameters: { id, controller, publicKey }', () => {
+    const multikey = new Multikey({ id, controller, publicKey });
+
+    it('should successfully construct a new Multikey with publicKey only', () => {
+      expect(multikey).to.exist.and.to.be.instanceOf(Multikey);
+      expect(multikey.publicKey).to.exist.and.to.be.instanceOf(Uint8Array);
+    });
+
+    it('should have proper variables: id, controller, privateKey, publicKey', () => {
+      expect(multikey.id).to.equal(id);
+      expect(multikey.controller).to.equal(controller);
+      expect(multikey.privateKey).to.be.undefined;
+      expect(multikey.publicKey).to.exist.and.to.be.instanceOf(Uint8Array);
+      multikey.publicKey?.every((b, i) => expect(b).to.equal(publicKey[i]));
+    });
+
+    it('should throw Btc1KeyManagerError with message "No private key"', () => {
+      expect(() => multikey.sign(message))
+        .to.throw(Btc1KeyManagerError, 'No private key');
+    });
+
+    it('should verify that a valid schnorr signature was produced by the Multikey', () => {
+      expect(multikey.verify(message, validSignature)).to.be.true;
+    });
+
+    it('should verify that an invalid schnorr signature was not produced by the Multikey', () => {
+      expect(multikey.verify(message, invalidSignature)).to.be.false;
+    });
+
+    it('should encode publicKey from bytes to Multikey Format', () => {
+      expect(multikey.encode()).to.equal(publicKeyMultibase);
+    });
+
+    it('should decode publicKeyMultibase from Multikey Format to bytes', () => {
+      const publicKeyMultibaseBytes = multikey.decode(publicKeyMultibase);
+      const prefixBytes = publicKeyMultibaseBytes.subarray(0, 2);
+      expect(publicKeyMultibaseBytes).to.exist.and.to.be.instanceOf(Uint8Array);
+      expect(prefixBytes).to.exist.and.to.be.instanceOf(Uint8Array);
+      expect(publicKeyMultibaseBytes.subarray(2).every((b, i) => expect(b).to.equal(publicKey[i])));
+      expect(prefixBytes.every((b, i) => expect(b).to.equal(prefix[i])));
+    });
+
+    it('should have a matching full id', () => {
+      expect(multikey.fullId()).to.equal(fullId);
+    });
+
+    it('should return a valid, matching verification method', () => {
+      expect(ObjectUtils.deepEqual(multikey.toVerificationMethod(), verificationMethod)).to.equal(true);
+    });
+
+    it('should construct a valid Multikey with matching data given a valid verification method', () => {
+      const multikeyFromVm = multikey.fromVerificationMethod(verificationMethod);
+      expect(multikeyFromVm).to.exist.and.to.be.instanceOf(Multikey);
+      expect(multikeyFromVm.id).to.equal(id);
+      expect(multikeyFromVm.controller).to.equal(controller);
+      expect(multikeyFromVm.publicKey).to.exist.and.to.be.instanceOf(Uint8Array);
+      multikeyFromVm.publicKey?.every((b, i) => expect(b).to.equal(publicKey[i]));
+    });
+  });
+
+  /**
+   * Private Key only
+   */
+  describe('with partial parameters: { id, controller, privateKey }', () => {
+    const multikey = new Multikey({ id, controller, privateKey });
+
+    it('should successfully construct a new Multikey with a privateKey and a publicKey', () => {
+      expect(multikey).to.exist.and.to.be.instanceOf(Multikey);
+    });
+
+    it('should have proper variables: id, controller, privateKey, publicKey', () => {
+      expect(multikey.id).to.equal(id);
+      expect(multikey.controller).to.equal(controller);
+      expect(multikey.publicKey).to.exist.and.to.be.instanceOf(Uint8Array);
+      expect(multikey.privateKey).to.exist.and.to.be.instanceOf(Uint8Array);
+      multikey.privateKey?.every((b, i) => expect(b).to.equal(privateKey[i]));
+      multikey.publicKey?.every((b, i) => expect(b).to.equal(publicKey[i]));
+    });
+
+    it('should create a valid schnorr signature', () => {
+      const signature = multikey.sign(message);
+      expect(signature).to.exist.and.to.be.instanceOf(Uint8Array);
+      expect(signature.length).to.equal(64);
+    });
+
+    it('should verify that a valid schnorr signature was produced by the Multikey', () => {
+      expect(multikey.verify(message, validSignature)).to.be.true;
+    });
+
+    it('should verify that an invalid schnorr signature was not produced by the Multikey', () => {
+      expect(multikey.verify(message, invalidSignature)).to.be.false;
+    });
+
+    it('should encode publicKey from bytes to Multikey Format', () => {
+      expect(multikey.encode()).to.equal(publicKeyMultibase);
+    });
+
+    it('should decode publicKeyMultibase from Multikey Format to bytes', () => {
+      const publicKeyMultibaseBytes = multikey.decode(publicKeyMultibase);
+      const prefixBytes = publicKeyMultibaseBytes.subarray(0, 2);
+      expect(publicKeyMultibaseBytes).to.exist.and.to.be.instanceOf(Uint8Array);
+      expect(prefixBytes).to.exist.and.to.be.instanceOf(Uint8Array);
+      expect(publicKeyMultibaseBytes.subarray(2).every((b, i) => expect(b).to.equal(publicKey[i])));
+      expect(prefixBytes.every((b, i) => expect(b).to.equal(prefix[i])));
+    });
+
+    it('should have a matching full id', () => {
+      expect(multikey.fullId()).to.equal(fullId);
+    });
+
+    it('should return a valid, matching verification method', () => {
+      expect(ObjectUtils.deepEqual(multikey.toVerificationMethod(), verificationMethod)).to.equal(true);
+    });
+
+    it('should construct a valid Multikey with matching data given a valid verification method', () => {
+      const multikeyFromVm = multikey.fromVerificationMethod(verificationMethod);
+      expect(multikeyFromVm).to.exist.and.to.be.instanceOf(Multikey);
       expect(multikeyFromVm.id).to.equal(id);
       expect(multikeyFromVm.controller).to.equal(controller);
       expect(multikeyFromVm.publicKey).to.exist.and.to.be.instanceOf(Uint8Array);

@@ -1,4 +1,4 @@
-import { Bip340Multikey } from '../src/di-bip340/multikey/multikey.js';
+import { Multikey } from '../src/di-bip340/multikey/index.js';
 const id = '#initialKey';
 const controller = 'did:btc1:k1qvddh3hl7n5czluwhz9ry35tunkhtldhgr66zp907ewg4l7p6u786tz863a';
 const publicKey = new Uint8Array([
@@ -18,7 +18,7 @@ const message = Buffer.from('Hello BTC1!').toString('hex');
 const validSignature = 'd340703b03d0f568655f3d6f245c50a7bc42cca8e8d059890d8314a290b2d4ce59a1070f816fed5270a721c77264b021a7a37719c53a4054b06ee59207cfe3ac';
 const invalidSignature = '230a929a88dd2924b3edb9ea471e460f590abf5dc41e3011479d25c779389fcb1567ad0897a14460c5681913d13750d565019978d2ecbea9da7ddfea80d6cbe3';
 
-const multikey = new Bip340Multikey({ id, controller, privateKey, publicKey });
+const multikey = new Multikey({ id, controller, privateKey, publicKey });
 const signature = multikey.sign(message);
 console.log('signature', signature);
 const verify = [validSignature, invalidSignature].map(s => multikey.verify(message, s));

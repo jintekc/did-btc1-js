@@ -1,7 +1,7 @@
-import BitcoinClient from '../src/bitcoin/bitcoin-client.js';
-import { DEFAULT_CLIENT_CONFIG } from '../src/constants/bitcoind.js';
+import Bitcoind from '../src/utils/bitcoind.js';
+import { DEFAULT_CLIENT_CONFIG } from '../src/utils/bitcoind/constants.js';
 
-// BitcoinClient.initialize()
+// Bitcoind.initialize()
 /*
 headers?: Record<string, string>;
 host?: string;
@@ -19,13 +19,13 @@ allowDefaultWallet?: boolean;
 //     password: 'alicepass',
 //     version: '28.1.0',
 // }
-// const client = BitcoinClient.initialize(config);
-// const bitcoind = new BitcoinClient(client);
+// const client = Bitcoind.initialize(config);
+// const bitcoind = new Bitcoind(client);
 // const info = await bitcoind.getBlockchainInformation()
 // console.log('info', info)
 const X = 7;
 const targetTime = 1739565192; // block 1160
-const bob = BitcoinClient.connect(DEFAULT_CLIENT_CONFIG);
+const bob = Bitcoind.connect(DEFAULT_CLIENT_CONFIG);
 
 async function targetTimeBlockHeight(targetTime: number) {
   let blockheight = await bob.getBlockCount();
@@ -81,7 +81,7 @@ console.log('Block', xConfirmBlock);
 // console.log('Object.values(bobMem[0])', Object.values(bobMem[0]))
 // console.log('bobMem', JSON.parse(JSON.stringify(bobMem)))
 
-// const alice = BitcoinClient.connect(DEFAULT_CLIENT_CONFIG)
+// const alice = Bitcoind.connect(DEFAULT_CLIENT_CONFIG)
 // const aliceMem = await alice.getMemoryInfo('stats');
 // console.log('aliceMem', aliceMem)
 
