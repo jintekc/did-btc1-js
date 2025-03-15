@@ -1,4 +1,4 @@
-import { PublicKeyBytes } from '@did-btc1/bip340-cryptosuite';
+import { PublicKeyBytes } from '@did-btc1/cryptosuite';
 import {
   Did,
   DidService,

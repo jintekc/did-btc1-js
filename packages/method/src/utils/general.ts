@@ -1,5 +1,5 @@
-import { Canonicalize } from '@did-btc1/bip340-cryptosuite';
-import { BIP340_MULTIKEY_PREFIX } from '@did-btc1/bip340-key-pair';
+import { Canonicalize } from '@did-btc1/cryptosuite';
+import { BIP340_MULTIKEY_PREFIX } from '@did-btc1/key-pair';
 import { sha256 } from '@noble/hashes/sha256';
 import { CURVE, getPublicKey, utils } from '@noble/secp256k1';
 import { HDKey } from '@scure/bip32';

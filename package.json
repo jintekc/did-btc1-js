@@ -1,6 +1,6 @@
 {
   "name": "did-btc1-js",
-  "version": "0.1.4",
+  "version": "1.0.0",
   "description": "Monorepo for did:btc1 js/ts implementation and supporting packages.",
   "type": "module",
   "workspaces": [
@@ -9,12 +9,15 @@
     "packages/method"
   ],
   "scripts": {
-    "clean": "pnpm npkill -d $(pwd)/packages -t dist && pnpm npkill -d $(pwd) -t node_modules",
     "del": "pnpm --recursive --stream del",
     "wipe": "pnpm --recursive --stream wipe",
+    "clean": "pnpm --recursive --stream clean",
     "wipe:clean": "pnpm --recursive --stream wipe:clean",
-    "wip:install": "pnpm --recursive --stream wip:install",
-    "force:install": "pnpm --recursive --stream install --force",
+    "wipe:install": "pnpm --recursive --stream wipe:install",
+    "clean:install": "pnpm --recursive --stream clean:install",
+    "wipe:clean:install": "pnpm --recursive --stream wipe:clean:install",
+    "reinstall": "pnpm --recursive --stream reinstall",
+    "cleanup": "pnpm npkill -d $(pwd)/packages -t dist && pnpm npkill -d $(pwd) -t node_modules",
     "build": "pnpm --recursive --stream build",
     "lint": "pnpm --recursive --stream lint",
     "lint:fix": "pnpm --recursive --stream lint:fix",
@@ -22,7 +25,7 @@
     "test": "pnpm --recursive --stream test",
     "test:node": "pnpm --recursive --stream test:node",
     "release": "pnpm --recursive --stream release",
-    "build:tests": "pnpm  --recursive --stream build && pnpm --recursive --stream build:tests && pnpm --recursive --streamtest:node",
+    "build:tests": "pnpm --recursive --stream build:tests",
     "version": "pnpm --recursive --stream version",
     "version:no-git": "pnpm --recursive --stream version:no-git",
     "cryptosuite": "pnpm --filter cryptosuite",

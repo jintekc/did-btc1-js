@@ -1,5 +1,5 @@
-import { Canonicalize } from '@did-btc1/bip340-cryptosuite';
-import { PublicKey } from '@did-btc1/bip340-key-pair';
+import { Canonicalize } from '@did-btc1/cryptosuite';
+import { PublicKey } from '@did-btc1/key-pair';
 import { sha256 } from '@noble/hashes/sha256';
 import { bech32 } from '@scure/base';
 import type { DidService, DidVerificationMethod } from '@web5/dids';

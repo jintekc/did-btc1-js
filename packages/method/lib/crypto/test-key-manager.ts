@@ -1,4 +1,4 @@
-import { Cryptosuite, DataIntegrityProof, KeyPairUtils, Multikey } from '@did-btc1/bip340-cryptosuite';
+import { Cryptosuite, DataIntegrityProof, KeyPairUtils, Multikey } from '@did-btc1/cryptosuite';
 import { Btc1KeyManager } from '../../src/btc1/key-manager.js';
 
 // Properly format the id

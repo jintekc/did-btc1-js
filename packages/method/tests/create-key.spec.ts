@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { DidBtc1 } from '../src/did-btc1.js';
-import { idTypes, networks, versions, pubKeyBytes } from './test-data.js';
+import { idTypes, networks, versions, pubKeyBytes as publicKey } from './test-data.js';
 
 const idType = idTypes.key;
 
@@ -15,17 +15,17 @@ const idType = idTypes.key;
  *
  */
 describe('DidBtc1 Create Key Test Cases', () => {
-  it('should create key-based id and document with pubKeyBytes',
+  it('should create key-based id and document with publicKey',
     async () => {
-      const result = await DidBtc1.create({ pubKeyBytes });
+      const result = await DidBtc1.create({ publicKey });
       expect(result).to.exist;
     });
 
-  it('should create key-based id and document with idType and pubKeyBytes',
+  it('should create key-based id and document with idType and publicKey',
     async () => {
       const result = await DidBtc1.create(
         {
-          pubKeyBytes,
+          publicKey,
           options : { idType }
         }
       );
@@ -33,13 +33,13 @@ describe('DidBtc1 Create Key Test Cases', () => {
     }
   );
 
-  it('should create key-based id and document with idType, pubKeyBytes and version',
+  it('should create key-based id and document with idType, publicKey and version',
     async () => {
       const results = await Promise.all(
         versions.map(async (version: string) =>
           await DidBtc1.create(
             {
-              pubKeyBytes,
+              publicKey,
               options : { idType, version }
             }
           )
@@ -49,13 +49,13 @@ describe('DidBtc1 Create Key Test Cases', () => {
     }
   );
 
-  it('should create key-based id and document with idType, pubKeyBytes and network',
+  it('should create key-based id and document with idType, publicKey and network',
     async () => {
       const results = await Promise.all(
         networks.map(async (network: string) =>
           await DidBtc1.create(
             {
-              pubKeyBytes,
+              publicKey,
               options : { idType, network }
             }
           )
@@ -65,7 +65,7 @@ describe('DidBtc1 Create Key Test Cases', () => {
     }
   );
 
-  it('should create key-based id and document with idType, pubKeyBytes, version and network',
+  it('should create key-based id and document with idType, publicKey, version and network',
     async () => {
       const results = await Promise.all(
         versions
@@ -73,7 +73,7 @@ describe('DidBtc1 Create Key Test Cases', () => {
           .map(async ([version, network]: string[]) =>
             await DidBtc1.create(
               {
-                pubKeyBytes,
+                publicKey,
                 options : { version, network, idType }
               }
             )

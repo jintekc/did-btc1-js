@@ -1,4 +1,4 @@
-import { PublicKey } from '@did-btc1/bip340-key-pair';
+import { PublicKey } from '@did-btc1/key-pair';
 import { strings } from '@helia/strings';
 import type { DidVerificationMethod } from '@web5/dids';
 import { DidError, DidErrorCode } from '@web5/dids';

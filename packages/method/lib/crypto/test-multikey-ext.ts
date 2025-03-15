@@ -1,4 +1,4 @@
-import { PublicKeyUtils } from '@did-btc1/bip340-cryptosuite';
+import { PublicKeyUtils } from '@did-btc1/cryptosuite';
 import { initEccLib, payments } from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 import { BtcNetworks } from '../../src/types/btc1.js';

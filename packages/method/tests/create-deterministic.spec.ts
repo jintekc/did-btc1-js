@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { DidBtc1 } from '../src/did-btc1.js';
 import { idTypes, networks, versions } from './test-data.js';
-import { KeyPair } from '../src/utils/keypair.js';
+import { KeyPair } from '@did-btc1/key-pair';
 
 /**
  * DidBtc1 Create Key Test Cases
@@ -21,8 +21,8 @@ describe('DidBtc1 Create Deterministic', () => {
     101, 219, 165,  94, 235, 242, 29, 164,
     176, 161, 99, 193, 209,  97,  23, 158
   ]);
-  const keypair = new KeyPair(privateKey);
-  const publicKey = keypair.publicKey;
+  const keypair = new KeyPair({ privateKey});
+  const publicKey = keypair.publicKey.bytes;
 
   it('should create a deterministic (idType=key) identifier and DID document from a publicKey',
     async () => {

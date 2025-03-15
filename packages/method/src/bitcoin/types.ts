@@ -1,4 +1,4 @@
-import { Hex } from '@did-btc1/bip340-cryptosuite';
+import { Hex } from '@did-btc1/cryptosuite';
 import BitcoinRpc from '../bitcoin/rpc-client.js';
 import { UnixTimestamp } from '../btc1/types.js';
 

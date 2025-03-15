@@ -1,6 +1,7 @@
+import { MultikeyError } from '../src/utils/error.js';
+import { KeyPair, KeyPairError, KeyPairUtils, PrivateKey, PrivateKeyUtils, PublicKey } from '@did-btc1/key-pair';
 import { expect } from 'chai';
 import { Multikey } from '../src/di-bip340/multikey/index.js';
-import { KeyPair, KeyPairError, KeyPairUtils, MultikeyError, PrivateKey, PrivateKeyUtils, PublicKey } from '../src/index.js';
 import ObjectUtils from '../src/utils/object-utils.js';
 
 /**
@@ -105,7 +106,7 @@ describe('Multikey instantiated', () => {
     });
 
     it('should decode publicKeyMultibase from Multikey Format to bytes', () => {
-      expect(multikey.publicKey.encodeMultibase()).to.equal(publicKeyMultibase);
+      expect(multikey.publicKey.encode()).to.equal(publicKeyMultibase);
     });
 
     it('should have a matching full id', () => {
@@ -161,11 +162,11 @@ describe('Multikey instantiated', () => {
     });
 
     it('should encode publicKey from bytes to Multikey Format', () => {
-      expect(multikey.publicKey.encodeMultibase()).to.equal(publicKeyMultibase);
+      expect(multikey.publicKey.encode()).to.equal(publicKeyMultibase);
     });
 
     it('should decode publicKeyMultibase from Multikey Format to bytes', () => {
-      expect(multikey.publicKey.decodeMultibase()).to.be.instanceOf(Uint8Array);
+      expect(multikey.publicKey.decode()).to.be.instanceOf(Uint8Array);
     });
 
     it('should have a matching full id', () => {
@@ -221,11 +222,11 @@ describe('Multikey instantiated', () => {
     });
 
     it('should encode publicKey from bytes to Multikey Format', () => {
-      expect(multikey.publicKey.encodeMultibase()).to.equal(publicKeyMultibase);
+      expect(multikey.publicKey.encode()).to.equal(publicKeyMultibase);
     });
 
     it('should decode publicKeyMultibase from Multikey Format to public key bytes', () => {
-      expect(multikey.publicKey.decodeMultibase()).to.be.instanceOf(Uint8Array);
+      expect(multikey.publicKey.decode()).to.be.instanceOf(Uint8Array);
     });
 
     it('should have a matching full id', () => {
@@ -284,11 +285,11 @@ describe('Multikey instantiated', () => {
     });
 
     it('should encode publicKey from bytes to Multikey Format', () => {
-      expect(multikey.publicKey.encodeMultibase()).to.equal(publicKeyMultibase);
+      expect(multikey.publicKey.encode()).to.equal(publicKeyMultibase);
     });
 
     it('should decode publicKeyMultibase from Multikey Format to public key bytes', () => {
-      expect(multikey.publicKey.decodeMultibase()).to.be.instanceOf(Uint8Array);
+      expect(multikey.publicKey.decode()).to.be.instanceOf(Uint8Array);
     });
 
     it('should have a matching full id', () => {

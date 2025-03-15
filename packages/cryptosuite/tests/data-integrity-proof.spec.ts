@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { Cryptosuite } from '../src/di-bip340/cryptosuite/index.js';
 import { DataIntegrityProof } from '../src/di-bip340/data-integrity-proof/index.js';
 import { Multikey } from '../src/di-bip340/multikey/index.js';
-import { KeyPair, PrivateKey, PrivateKeyUtils } from '../src/index.js';
+import { KeyPair, PrivateKeyUtils } from '@did-btc1/key-pair';
 import { ProofOptions } from '../src/types/di-proof.js';
 
 const unsecuredDocument = {

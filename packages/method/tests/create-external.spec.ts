@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { DidBtc1 } from '../src/did-btc1.js';
-import { idTypes, networks, versions, intermediateDocument as testDoc } from './test-data.js';
+import { idTypes, networks, versions } from './test-data.js';
 import { IntermediateDocument } from '../src/index.js';
 
 const idType = idTypes.external;

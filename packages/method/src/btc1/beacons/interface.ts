@@ -1,4 +1,4 @@
-import { PublicKeyBytes } from '@did-btc1/bip340-cryptosuite';
+import { PublicKeyBytes } from '@did-btc1/cryptosuite';
 import { DidService as IDidService } from '@web5/dids';
 import { networks } from 'bitcoinjs-lib';
 import { Transaction } from '../../bitcoin/types.js';

@@ -1,4 +1,4 @@
-import { KeyPair, KeyPairJSON, PrivateKey, PublicKey } from '@did-btc1/bip340-key-pair';
+import { KeyPair, KeyPairJSON, PrivateKey, PublicKey } from '@did-btc1/key-pair';
 import { DidVerificationMethod } from '@web5/dids';
 import { MessageBytes, PrivateKeyBytes, PublicKeyBytes, SignatureBytes } from '../../types/shared.js';
 import { Multikey } from './index.js';

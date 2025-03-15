@@ -1,4 +1,4 @@
-import { KeyPair, PrivateKey, PublicKey } from '@did-btc1/bip340-key-pair';
+import { KeyPair, PrivateKey, PublicKey } from '@did-btc1/key-pair';
 import { schnorr } from '@noble/curves/secp256k1';
 import { DidVerificationMethod } from '@web5/dids';
 import { randomBytes } from 'crypto';

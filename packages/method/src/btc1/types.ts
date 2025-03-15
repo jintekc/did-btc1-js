@@ -1,4 +1,4 @@
-import { ProofBytes } from '@did-btc1/bip340-cryptosuite';
+import { ProofBytes } from '@did-btc1/cryptosuite';
 import { RequireOnly } from '@web5/common';
 import { BlockV3 } from '../bitcoin/types.js';
 import { Btc1DidDocument, Btc1VerificationMethod } from '../btc1/did-document.js';

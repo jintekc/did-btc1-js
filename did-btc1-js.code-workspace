@@ -15,7 +15,7 @@
     {
       "name": "method",
       "path": "packages/method"
-    },
+    }
   ],
   "settings": {
     "eslint.workingDirectories": [
