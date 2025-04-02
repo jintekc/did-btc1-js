@@ -1,4 +1,5 @@
 // Contains general constants and placeholders for the MS-SMT logic.
+
 export const HASH_SIZE = 32;
 
 /**

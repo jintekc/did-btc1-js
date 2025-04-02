@@ -1,29 +1,16 @@
-// Core Node interface shared by leaf/branch/computed nodes.
+// The base "Component" of our Composite pattern. Both leaves and branches
+// will implement MsSmtNode.
 
-import { bufferEq } from './utils.js';
-
-/** NodeHash is a 32-byte hash in TypeScript as a Uint8Array. */
-export type NodeHash = Uint8Array;
-
-/**
- * Node represents a single MS-SMT node (leaf or branch),
- * each with a nodeHash and a 64-bit nodeSum.
- */
 export interface Node {
-  nodeHash(): NodeHash;
-  nodeSum(): bigint;
-  copy(): Node;
-}
+    /** getHash returns the Merkle hash of this node. */
+    getHash(): Uint8Array;
 
-/**
- * isEqualNode checks equality by nodeHash + nodeSum. It replicates
- * IsEqualNode from mssmt.go.
- */
-export function isEqualNode(a: Node | null, b: Node | null): boolean {
-  if (a === null || b === null) {
-    return a === b;
+    /** getSum returns the 64-bit sum that this node contributes upward. */
+    getSum(): bigint;
+
+    /**
+     * copy performs a deep copy (or "computed" reference).
+     * In real usage, you might store partial subtrees or do a shallow copy.
+     */
+    copy(): Node;
   }
-  const sameHash = bufferEq(a.nodeHash(), b.nodeHash());
-  const sameSum = (a.nodeSum() === b.nodeSum());
-  return sameHash && sameSum;
-}

@@ -1,68 +1,74 @@
-// BranchNode in the MS-SMT: an internal node referencing two children.
+// A Branch references left/right child Nodes, combining their
+// hashes + sums in a merkle-sum manner.
 
-import { ComputedNode } from './computed.js';
-import { Node, NodeHash } from './node.js';
-import { encodeBigUint64BE, sha256 } from './utils.js';
+import { Node } from './node.js';
+import { HashStrategy } from './hashing.js';
 
-export class BranchNode implements Node {
-  private nodeHashCache: NodeHash | null = null;
+export class Branch implements Node {
+  private hashCache: Uint8Array | null = null;
   private sumCache: bigint | null = null;
 
   constructor(
-    public Left: Node,
-    public Right: Node
+    private leftChild: Node,
+    private rightChild: Node,
+    private hasher: HashStrategy
   ) {}
 
-  nodeHash(): NodeHash {
-    if (this.nodeHashCache) {
-      return this.nodeHashCache;
+  public getHash(): Uint8Array {
+    if (this.hashCache) {
+      return this.hashCache;
     }
-    const leftHash = this.Left.nodeHash();
-    const rightHash = this.Right.nodeHash();
-    const sumBuf = encodeBigUint64BE(this.nodeSum());
+    const leftHash = this.leftChild.getHash();
+    const rightHash = this.rightChild.getHash();
 
-    const hash = sha256(leftHash, rightHash, sumBuf);
-    this.nodeHashCache = hash;
-    return hash;
+    // We'll also incorporate the sum in the final digest for the MS-SMT.
+    const sumBuf = Branch.encodeBigUint64BE(this.getSum());
+
+    const h = this.hasher.digest(leftHash, rightHash, sumBuf);
+    this.hashCache = h;
+    return h;
   }
 
-  nodeSum(): bigint {
+  public getSum(): bigint {
     if (this.sumCache !== null) {
       return this.sumCache;
     }
-    const sumVal = this.Left.nodeSum() + this.Right.nodeSum();
+    const sumVal = this.leftChild.getSum() + this.rightChild.getSum();
     this.sumCache = sumVal;
     return sumVal;
   }
 
-  /**
-   * copy returns a deep copy. In the Go code, the BranchNode’s Copy
-   * returns a branch whose children are “ComputedNode”. You can adapt
-   * to your needs, e.g. full deep copy or minimal references.
-   */
-  copy(): Node {
-    // “Computed node” style: only store hash+sum of the children.
-    const leftComp = new ComputedNode(this.Left.nodeHash(), this.Left.nodeSum());
-    const rightComp = new ComputedNode(this.Right.nodeHash(), this.Right.nodeSum());
+  public copy(): Node {
+    // If we want partial references, we could store only hash+sum
+    // (a "ComputedNode" concept). For simplicity, do a full copy:
+    const newLeft = this.leftChild.copy();
+    const newRight = this.rightChild.copy();
+    const clone = new Branch(newLeft, newRight, this.hasher);
 
-    const newBranch = new BranchNode(leftComp, rightComp);
-
-    // Copy caches if set
-    if (this.nodeHashCache) {
-      newBranch.nodeHashCache = new Uint8Array(this.nodeHashCache);
+    if (this.hashCache) {
+      clone.hashCache = new Uint8Array(this.hashCache);
     }
     if (this.sumCache !== null) {
-      newBranch.sumCache = this.sumCache;
+      clone.sumCache = this.sumCache;
     }
-
-    return newBranch;
+    return clone;
   }
-}
 
-/**
- * newBranch replicates the “NewBranch” function from Go,
- * constructing a BranchNode from left+right children.
- */
-export function newBranch(left: Node, right: Node): BranchNode {
-  return new BranchNode(left, right);
+  public getLeftChild(): Node {
+    return this.leftChild;
+  }
+
+  public getRightChild(): Node {
+    return this.rightChild;
+  }
+
+  private static encodeBigUint64BE(value: bigint): Uint8Array {
+    const buf = new Uint8Array(8);
+    let tmp = value;
+    for (let i = 7; i >= 0; i--) {
+      buf[i] = Number(tmp & 0xffn);
+      tmp >>= 8n;
+    }
+    return buf;
+  }
 }
