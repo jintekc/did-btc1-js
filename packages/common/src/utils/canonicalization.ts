@@ -5,6 +5,7 @@ import { HashBytes } from '../types/crypto.js';
 import { CanonicalizationAlgorithm } from '../types/general.js';
 import { JSONObject } from '../exts.js';
 import { CanonicalizationError } from './errors.js';
+import { base58btc } from 'multiformats/bases/base58';
 
 /**
  * Class for canonicalizing objects using JCS (RFC 8785) or RDFC (RDF Canonicalization 1.0).
@@ -35,15 +36,15 @@ export class Canonicalization {
    * @param {JSONObject} object The object to process.
    * @returns {Promise<string>} The final SHA-256 hash bytes as a hex string.
    */
-  public async process(object: JSONObject): Promise<string> {
+  public async process(object: JSONObject, encoding: string = 'hex'): Promise<string> {
     // Step 1: Canonicalize
     const canonicalized = await this.canonicalize(object);
     // Step 2: Hash
     const hashBytes = this.hash(canonicalized);
-    // Step 3: Hex
-    const hex = this.hex(hashBytes);
+    // Step 3: Encode
+    const encoded = this.encode(hashBytes, encoding);
     // Return the final hex string
-    return hex;
+    return encoded;
   }
 
   /**
@@ -90,11 +91,39 @@ export class Canonicalization {
   /**
    * Step 2-3: Hash → Hex.
    * Hashes a canonicalized string using SHA-256 and returns it as hex string.
-   * @param {string} canonicalized
+   * @param {string} canonicalized The canonicalized string to hash.
    * @returns {string} The SHA-256 hash as a hex string.
    */
   public hashhex(canonicalized: string): string {
     return this.hex(this.hash(canonicalized));
+  }
+
+
+  /**
+   * Encodes a canonicalized string into a specified encoding format.
+   * @param {string} canonicalized The canonicalized string to encode.
+   * @param {string} encoding The encoding format ('hex' or 'base58').
+   * @throws {CanonicalizationError} If the encoding format is not supported.
+   * @returns {string} The encoded string.
+   */
+  public encode(canonicalized: HashBytes, encoding: string): string {
+    switch(encoding) {
+      case 'hex':
+        return this.hex(canonicalized);
+      case 'base58':
+        return base58btc.encode(canonicalized);
+      default:
+        throw new CanonicalizationError(`Unsupported encoding: ${encoding}`, 'ENCODING_ERROR');
+    }
+  }
+
+  /**
+   * Step 2-3: Hash → Base58.
+   * @param {string} canonicalized The canonicalized string to hash.
+   * @returns {string} The SHA-256 hash as a base58 string.
+   */
+  public hashbase58(canonicalized: string): string {
+    return base58btc.encode(this.hash(canonicalized));
   }
 
   /**

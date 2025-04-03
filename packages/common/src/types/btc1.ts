@@ -36,7 +36,7 @@ export interface Proof {
   '@type'?: 'DataIntegrityProof';
   type?: 'DataIntegrityProof';
   created?: string;
-  cryptosuite: 'jcs' | 'rdfc';
+  cryptosuite: 'bip340-jcs-2025' | 'bip340-rdfc-2025';
   verificationMethod: string;
   proofPurpose: string;
   proofValue: string;

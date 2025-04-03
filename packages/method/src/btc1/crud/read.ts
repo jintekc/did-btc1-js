@@ -1,13 +1,9 @@
-import { BitcoinNetworkNames, Btc1Error, Btc1ReadError, canonicalization, DidUpdatePayload, Logger, UnixTimestamp } from '@did-btc1/common';
+import { BitcoinNetworkNames, Btc1Error, Btc1ReadError, canonicalization, DidUpdatePayload, INVALID_DID_DOCUMENT, LATE_PUBLISHING_ERROR, Logger, UnixTimestamp } from '@did-btc1/common';
 import { Cryptosuite, DataIntegrityProof, Multikey } from '@did-btc1/cryptosuite';
 import { KeyPair, PublicKey } from '@did-btc1/key-pair';
-import { strings } from '@helia/strings';
 import { bytesToHex } from '@noble/hashes/utils';
 import type { DidVerificationMethod } from '@web5/dids';
 import { DidError, DidErrorCode } from '@web5/dids';
-import { createHelia } from 'helia';
-import { CID } from 'multiformats/cid';
-import * as Digest from 'multiformats/hashes/digest';
 import { DEFAULT_BLOCK_CONFIRMATIONS, GENESIS_TX_ID, TXIN_WITNESS_COINBASE } from '../../bitcoin/constants.js';
 import { getNetwork } from '../../bitcoin/network.js';
 import BitcoinRpc from '../../bitcoin/rpc-client.js';
@@ -160,7 +156,7 @@ export class Btc1Read {
 
     // Validate the initialDocument is not null
     if(!initialDocument) {
-      throw new DidError(DidErrorCode.InvalidDidDocument, 'Initial document is required for external resolution');
+      throw new Btc1Error(INVALID_DID_DOCUMENT, 'Initial document is required for external resolution', initialDocument);
     }
 
     // If initialDocument is not null, call the sidecar method, otherwise call the cas method
@@ -200,8 +196,12 @@ export class Btc1Read {
     const hashBytes = await canonicalization.process(intermediateDocument);
 
     // Validate the genesisBytes match the hashBytes
-    if (bytesToHex(components.genesisBytes) !== hashBytes) {
-      throw new DidError(DidErrorCode.InvalidDidDocument, 'Genesis bytes do not match hash bytes of initial document');
+    const genesisBytes = bytesToHex(components.genesisBytes);
+    if (genesisBytes !== hashBytes) {
+      throw new Btc1Error(
+        INVALID_DID_DOCUMENT,
+        `Initial document mismatch: genesisBytes ${genesisBytes} !== hashBytes ${hashBytes}`
+      );
     }
 
     return new Btc1DidDocument(initialDocument);
@@ -213,29 +213,23 @@ export class Btc1Read {
    * The CAS Retrieval algorithm attempts to retrieve an initialDocument from a Content Addressable Storage (CAS) system
    * by converting the bytes in the identifier into a Content Identifier (CID). It takes in an identifier and
    * an identifierComponents object. It returns an initialDocument.
+   *
    * @param {DidReadCas} params Required params for calling the cas method
    * @param {string} params.identifier BTC1 DID used to resolve the DID Document
    * @param {DidComponents} params.components BTC1 DID components used to resolve the DID Document
    * @returns {Btc1DidDocument} The resolved DID Document object
-   * @throws {DidError} if an error occurs while resolving from CAS
-   * @throws {DidErrorCode.InvalidDidDocument} if the DID Document content is invalid
+   * @throws {Btc1Error} if the DID Document content is invalid
    */
   public static async cas({ identifier, components }: DidReadCas): Promise<Btc1DidDocument> {
     // Set hashBytes to genesisBytes
     const hashBytes = components.genesisBytes;
 
-    // Create a CID from the hashBytes
-    const cid = CID.create(1, 1, Digest.create(1, hashBytes));
-
-    // Create a Helia node connection to IPFS
-    const helia = strings(await createHelia());
-
-    // Get the intermediateDocument from the Helia node
-    const intermediateDocument = await helia.get(cid, {});
+    // Fetch the intermediateDocument from the CAS using the hashBytes
+    const intermediateDocument = await Btc1Appendix.fetchFromCas(hashBytes);
 
     // Validate the intermediateDocument is parsable JSON
-    if (!JSON.parsable(intermediateDocument)) {
-      throw new DidError(DidErrorCode.InvalidDidDocument, 'Invalid DID Document content');
+    if (!intermediateDocument || !JSON.parsable(intermediateDocument)) {
+      throw new Btc1Error(INVALID_DID_DOCUMENT, 'Invalid DID Document content', { intermediateDocument });
     }
 
     // Parse the intermediateDocument into a Btc1DidDocument object
@@ -377,31 +371,54 @@ export class Btc1Read {
     // If bitcoinClient is not defined, connect to default bitcoin node
     const rpc = BitcoinRpc.connect();
 
-    // Get the current block height
-    const height = await rpc.getBlockCount();
+    // Get the current block chain tip
+    let tip = await rpc.getBlockCount();
 
-    // Get the block at the current height
-    let block = await rpc.getBlock({ height }) as BlockV3;
+    // Set the genesis index (left side of the search space) to 0
+    let genesis = 0;
 
-    // Return block height response from targetBlockHeight
-    if(!targetTime) {
-      // Traverse Bitcoin blocks to find the largest block with confirmations >= DEFAULT_BLOCK_CONFIRMATIONS
-      while (block.confirmations <= DEFAULT_BLOCK_CONFIRMATIONS) {
-        // block.hash = await rpc.getBlockHash();
-        block = await rpc.getBlock({ height: --block.height }) as BlockV3;
+    // Set the target to 0
+    let target = 0;
+
+    // 1. If targetTime, find the Bitcoin block height where timestamp < targetTime.
+    if(targetTime) {
+      // Use a binary search algorithm to find the block height
+      // Loop until the genesis index is less than or equal to the tip
+      while (genesis <= tip) {
+      // Set the mid index
+        const mid = Math.floor((genesis + tip) / 2);
+
+        // Get the block data at "mid" height
+        const block = await rpc.getBlock({ height: mid }) as BlockV3;
+
+        // Check if block.time < targetTime
+        if (block.time < targetTime) {
+          // Reset target to the mid index going higher
+          target = mid;
+          // Reset genesis to mid + 1
+          genesis = mid + 1;
+        } else {
+        // Reset tip to mid - 1 going lower
+          tip = mid - 1;
+        }
       }
-      // Return the block height
-      return block.height;
+
+      // 4. Return the blockheight
+      return target;
     }
 
-    // Traverse Bitcoin blocks to find the largest block with timestamp < targetTime
-    while (block.time > targetTime) {
-      // block.hash = await rpc.getBlockHash(--block.height);
+    // 2. Else find the Bitcoin block with the greatest blockheight that has at least X DEFAULT_BLOCK_CONFIRMATIONS.
+    Logger.warn('// TODO: determineTargetBlockHeight - TODO: what is X. Is it variable?');
+
+    let block = await rpc.getBlock({ height: tip }) as BlockV3;
+    while (block.confirmations <= DEFAULT_BLOCK_CONFIRMATIONS) {
+      // block.hash = await rpc.getBlockHash();
       block = await rpc.getBlock({ height: --block.height }) as BlockV3;
     }
 
-    // Return the block height
+    // 4. Return the block height
     return block.height;
+
   }
 
   /**
@@ -452,7 +469,7 @@ export class Btc1Read {
   }): Promise<Btc1DidDocument> {
     // 1. Set contemporaryHash to the SHA256 hash of the contemporaryDIDDocument
     // TODO: NEED TO DEAL WITH CANONICALIZATION
-    let contemporaryHash = await canonicalization.process(contemporaryDIDDocument);
+    let contemporaryHash = await canonicalization.process(contemporaryDIDDocument, 'base58');
 
     // 3. For each beacon in beacons convert the beacon.serviceEndpoint to a Bitcoin address following BIP21.
     //    Set beacon.address to the Bitcoin address.
@@ -492,8 +509,12 @@ export class Btc1Read {
           //  9.2. If update.targetVersionId equals currentVersionId + 1:
         } else if(update.targetVersionId === currentVersionId + 1) {
           //  9.2.1. Check that update.sourceHash equals contemporaryHash, else MUST raise latePublishing error.
-          if(update.sourceHash !== contemporaryHash) {
-            throw new Btc1ReadError(`Hash mismatch: ${update.sourceHash} !== ${contemporaryHash}`, 'LATE_PUBLISHING_ERROR');
+          if(update.sourceHash !== contemporaryHash.slice(1)) {
+            throw new Btc1ReadError(
+              `Hash mismatch: update.sourceHash ${update.sourceHash} !== contemporaryHash ${contemporaryHash}`,
+              LATE_PUBLISHING_ERROR,
+              { update, contemporaryHash }
+            );
           }
 
           // 9.2.2. Set contemporaryDIDDocument to the result of calling Apply DID Update algorithm passing in

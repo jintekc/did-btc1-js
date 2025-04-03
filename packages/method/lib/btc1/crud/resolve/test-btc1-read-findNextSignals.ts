@@ -1,4 +1,4 @@
-import { Btc1Read } from '../src/index.js';
+import { Btc1Read } from '../../../../src/index.js';
 
 const signals = await Btc1Read.findNextSignals({
   blockheight : 4000,

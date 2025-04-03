@@ -1,5 +1,5 @@
-import BitcoinRpc from '../src/bitcoin/rpc-client.js';
-import { BlockV3, DEFAULT_RPC_CLIENT_CONFIG } from '../src/index.js';
+import BitcoinRpc from '../../../../src/bitcoin/rpc-client.js';
+import { BlockV3, DEFAULT_RPC_CLIENT_CONFIG } from '../../../../src/index.js';
 
 const genesisTime = 1742996020000;
 console.log(`Genesis time: ${genesisTime}`);
@@ -12,14 +12,16 @@ const rpc = BitcoinRpc.connect(DEFAULT_RPC_CLIENT_CONFIG);
 const start = performance.now();
 let iterations = 0;
 
-let genesis = 0;
-let tip = await rpc.getBlockCount();;
+const timespan = targetTime - genesisTime;
+const blockspan = Math.floor(timespan / 600000);
+
+let genesis = blockspan;
+let tip = await rpc.getBlockCount();
 let target = 0;
 
 while (genesis <= tip) {
   iterations++;
   const mid = Math.floor((genesis + tip) / 2);
-
 
   // 3. Get the block data at "mid" height
   const block = await rpc.getBlock({ height: mid }) as BlockV3;

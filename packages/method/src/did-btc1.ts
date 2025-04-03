@@ -1,4 +1,4 @@
-import { Btc1Error, PatchOperation, PublicKeyBytes } from '@did-btc1/common';
+import { Btc1Error, INVALID_DID_DOCUMENT, PatchOperation, PublicKeyBytes } from '@did-btc1/common';
 import type { DidResolutionResult, DidVerificationMethod, DidCreateOptions as IDidCreateOptions } from '@web5/dids';
 import {
   Did,
@@ -179,6 +179,7 @@ export class DidBtc1 implements DidMethod {
       // Produce a an XML Datetime UTC to indicate the timestamp of the Create operation.
       const created = new Date().getUTCDateTime();
 
+
       // Return the DID Resolution Result
       return {
         '@context'            : W3C_DID_RESOLUTION_V1,
@@ -241,9 +242,6 @@ export class DidBtc1 implements DidMethod {
     verificationMethodId: string;
     beaconIds: string[];
   }): Promise<any> {
-    // Set the error code for invalid DID Document
-    const INVALID_DID_DOCUMENT = DidErrorCode.InvalidDidDocument.toSnakeCaseScreaming();
-
     // Deconstruct the params
     const { identifier, patch, sourceDocument, sourceVersionId } = params;
 

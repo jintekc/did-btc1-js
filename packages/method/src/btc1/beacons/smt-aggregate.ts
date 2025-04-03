@@ -3,8 +3,7 @@ import { DidServiceEndpoint } from '@web5/dids';
 import { Beacon } from '../../interfaces/beacon.js';
 import { BeaconService, BeaconSignal } from '../../interfaces/ibeacon.js';
 import { RawTransactionV2 } from '../../types/bitcoin.js';
-import { SidecarData, SignalsMetadata, SMTAggregateSidecar } from '../../types/crud.js';
-
+import { SidecarData, SignalSidecarData, SMTAggregateSidecar } from '../../types/crud.js';
 
 /**
  * TODO: Finish implementation
@@ -98,7 +97,7 @@ export class SMTAggregateBeacon extends Beacon {
    * @returns {Promise<SignalMetadata>} The signal metadata.
    * @throws {Btc1Error} if the signal is invalid.
    */
-  public broadcastSignal(didUpdatePayload: DidUpdatePayload): Promise<SignalsMetadata> {
+  public broadcastSignal(didUpdatePayload: DidUpdatePayload): Promise<SignalSidecarData> {
     throw new Btc1Error('Method not implemented.', `METHOD_NOT_IMPLEMENTED`, didUpdatePayload);
   }
 
@@ -123,11 +122,11 @@ export class SMTAggregateBeacon extends Beacon {
    * throws an error.
    *
    * @param {RawTransactionV2} signal The raw transaction signal.
-   * @param {SignalsMetadata} signalsMetadata The signals metadata.
+   * @param {SignalSidecarData} signalSidecarData The signals metadata.
    * @returns {Promise<DidUpdatePayload | undefined>} The updated DID document.
    * @throws {Btc1Error} if the signal is invalid.
    */
-  public processSignal(signal: RawTransactionV2, signalsMetadata: SignalsMetadata): Promise<DidUpdatePayload | undefined> {
-    throw new Btc1Error('Method not implemented.', `METHOD_NOT_IMPLEMENTED`, {signal, signalsMetadata});
+  public processSignal(signal: RawTransactionV2, signalSidecarData: SignalSidecarData): Promise<DidUpdatePayload | undefined> {
+    throw new Btc1Error('Method not implemented.', `METHOD_NOT_IMPLEMENTED`, {signal, signalSidecarData});
   }
 }

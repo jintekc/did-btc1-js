@@ -67,6 +67,9 @@ export enum Btc1ErrorCode {
 
  /** Something about the DID Update Payload indicates the potential for late publishing. */
   LATE_PUBLISHING_ERROR = 'LATE_PUBLISHING_ERROR',
+
+  /** The sidecar data in the DID Update Payload was invalid. */
+  INVALID_SIDECAR_DATA = 'INVALID_SIDECAR_DATA',
 }
 
 export const {
@@ -89,7 +92,9 @@ export const {
   PROOF_GENERATION_ERROR,
   PROOF_SERIALIZATION_ERROR,
   PROOF_PARSING_ERROR,
-  MULTIKEY_VERIFICATION_METHOD_ERROR
+  MULTIKEY_VERIFICATION_METHOD_ERROR,
+  LATE_PUBLISHING_ERROR,
+  INVALID_SIDECAR_DATA
 } = Btc1ErrorCode;
 
 export type ErrorOptions = {

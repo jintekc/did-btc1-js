@@ -1,10 +1,12 @@
-import { canonicalization, DidUpdatePayload, Logger, SingletonBeaconError } from '@did-btc1/common';
+import { canonicalization, DidUpdatePayload, INVALID_SIDECAR_DATA, LATE_PUBLISHING_ERROR, Logger, SingletonBeaconError } from '@did-btc1/common';
 import { DidServiceEndpoint } from '@web5/dids';
+import { base58btc } from 'multiformats/bases/base58';
 import BitcoinRpc from '../../bitcoin/rpc-client.js';
 import { Beacon } from '../../interfaces/beacon.js';
 import { BeaconService, BeaconSignal } from '../../interfaces/ibeacon.js';
 import { RawTransactionV2 } from '../../types/bitcoin.js';
-import { SidecarData, SignalsMetadata, SingletonSidecar } from '../../types/crud.js';
+import { Metadata, SidecarData, SignalSidecarData, SingletonSidecar } from '../../types/crud.js';
+import { Btc1Appendix } from '../../utils/btc1/appendix.js';
 
 /**
  * Implements {@link https://dcdpr.github.io/did-btc1/#singleton-beacon | 5.1 Singleton Beacon}.
@@ -86,45 +88,64 @@ export class SingletonBeacon extends Beacon {
    * It returns the DID Update payload announced by the Beacon Signal or throws an error.
    *
    * @param {RawTransactionV2} signal Bitcoin transaction representing a Beacon Signal.
-   * @param {?SignalsMetadata} signalsMetadata Optional sidecar data for the Beacon Signal.
+   * @param {SignalSidecarData} signalSidecarData Optional sidecar data for the Beacon Signal.
    * @returns {Promise<DidUpdatePayload | undefined>} The DID Update payload announced by the Beacon Signal.
    * @throws {DidError} if the signalTx is invalid or the signalSidecarData is invalid.
    */
-  public async processSignal(signal: RawTransactionV2, signalsMetadata: SignalsMetadata): Promise<DidUpdatePayload | undefined> {
-    // Get the first output of the transaction
+  public async processSignal(signal: RawTransactionV2, signalSidecarData: SignalSidecarData): Promise<DidUpdatePayload | undefined> {
+    // 1. Initialize a txOut variable to the 0th transaction output of the tx.
     const txOut = signal.vout[0];
 
-    // Check if the first output is an OP_RETURN script
+    // 2. Set didUpdatePayload to null.
+    let didUpdatePayload: DidUpdatePayload | undefined = undefined;
+
+    // 3. Check txOut is of the format [OP_RETURN, OP_PUSH32, <32bytes>], if not, then return didUpdatePayload.
+    //    The Bitcoin transaction is not a Beacon Signal.
     const [OP_RETURN, UPDATE_PAYLOAD_HASH] = txOut.scriptPubKey.asm.split(' ');
     if (!OP_RETURN || OP_RETURN !== 'OP_RETURN') {
       return undefined;
     };
 
-    // Extract the 32 bytes after the OP_RETURN
-    const signalsMetadataMap = new Map(Object.entries(signalsMetadata!));
+    // 4. Set hashBytes to the 32 bytes in the txOut.
+    const hashBytes = UPDATE_PAYLOAD_HASH;
 
-    const didUpdatePayload = signalsMetadataMap.get(signal.txid)?.updatePayload;
-    if(!didUpdatePayload) {
-      throw new SingletonBeaconError('Update Payload not found in signal metadata.', 'PROCESS_SIGNAL_ERROR');
-    }
+    // Convert signalSidecarData to a Map for easier access
+    const signalsMetadataMap = new Map<string, Metadata>(Object.entries(signalSidecarData));
 
-    // Check if the hashBytes are in the sidecarData
-    if (signalsMetadata) {
-      const updateHashBytes = await canonicalization.process(didUpdatePayload);
-      console.log('updateHashBytes', updateHashBytes);
+    // 5. If signalSidecarData:
+    if (signalSidecarData) {
+      // 5.1 Set didUpdatePayload to signalSidecarData.updatePayload
+      didUpdatePayload = signalsMetadataMap.get(signal.txid)?.updatePayload;
 
-      console.log('UPDATE_PAYLOAD_HASH', UPDATE_PAYLOAD_HASH);
-
-      if (updateHashBytes !== UPDATE_PAYLOAD_HASH) {
-        throw new SingletonBeaconError('Update payload hash does not match transaction hash.', 'PROCESS_SIGNAL_ERROR');
+      if(!didUpdatePayload) {
+        throw new SingletonBeaconError('Update Payload not found in signal metadata.', 'PROCESS_SIGNAL_ERROR');
       }
-    } else {
-      // TODO: Step 6
-      // Else:
-      //  Set didUpdatePayload to the result of passing hashBytes into the Fetch Content from Addressable Storage algorithm.
-      //  If didUpdatePayload is null, MUST raise a latePublishingError. MAY identify Beacon Signal to resolver and request additional Sidecar data be provided.
+
+      // 5.2 Set updateHashBytes to the result of passing didUpdatePayload to the JSON Canonicalization and Hash algorithm.
+      const updateHashBytes = await canonicalization.process(didUpdatePayload);
+
+      // 5.3 If updateHashBytes does not equal hashBytes, MUST throw an invalidSidecarData error.
+      if (updateHashBytes !== hashBytes) {
+        throw new SingletonBeaconError('Update payload hash does not match transaction hash.', INVALID_SIDECAR_DATA);
+      }
+      // 7. Return didUpdatePayload.
+      return didUpdatePayload;
     }
 
+    // 6. Else:
+    //  6.1 Set didUpdatePayload to the result of passing hashBytes into the Fetch Content from Addressable Storage algorithm.
+    const didUpdatePayloadString = await Btc1Appendix.fetchFromCas(base58btc.decode(hashBytes));
+    if(!didUpdatePayloadString || !JSON.parse(didUpdatePayloadString)) {
+      throw new SingletonBeaconError('Update payload not found in addressable storage.', INVALID_SIDECAR_DATA);
+    }
+    didUpdatePayload = JSON.parse(didUpdatePayloadString) as DidUpdatePayload;
+
+    //  6.2 If didUpdatePayload is null, MUST raise a latePublishingError. MAY identify Beacon Signal to resolver and request additional Sidecar data be provided.
+    if (!didUpdatePayload) {
+      throw new SingletonBeaconError('Update payload hash does not match transaction hash.', LATE_PUBLISHING_ERROR);
+    }
+
+    // 7. Return didUpdatePayload.
     return didUpdatePayload;
   }
 
@@ -145,7 +166,7 @@ export class SingletonBeacon extends Beacon {
    * @returns {SignedRawTx} Successful output of a bitcoin transaction.
    * @throws {SingletonBeaconError} if the bitcoin address is invalid or unfunded.
    */
-  public async broadcastSignal(didUpdatePayload: DidUpdatePayload): Promise<SignalsMetadata> {
+  public async broadcastSignal(didUpdatePayload: DidUpdatePayload): Promise<SignalSidecarData> {
     // Connect to the default bitcoind node
     const rpc = BitcoinRpc.connect();
 
