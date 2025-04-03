@@ -64,6 +64,9 @@ export enum Btc1ErrorCode {
 
   /** The Multikey verification method was formed improperly. */
   MULTIKEY_VERIFICATION_METHOD_ERROR = 'MULTIKEY_VERIFICATION_METHOD_ERROR',
+
+ /** Something about the DID Update Payload indicates the potential for late publishing. */
+  LATE_PUBLISHING_ERROR = 'LATE_PUBLISHING_ERROR',
 }
 
 export const {

@@ -15,6 +15,7 @@ export interface DidUpdatePayload {
     sourceHash: string;
     targetHash: string;
     targetVersionId: number;
+    proof?: Proof;
 }
 export interface DidUpdateInvocation extends DidUpdatePayload {
     proof: Proof;

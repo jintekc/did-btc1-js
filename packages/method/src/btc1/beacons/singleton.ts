@@ -1,12 +1,10 @@
-import { canonicalization, DidUpdateInvocation, DidUpdatePayload, Logger, SingletonBeaconError } from '@did-btc1/common';
+import { canonicalization, DidUpdatePayload, Logger, SingletonBeaconError } from '@did-btc1/common';
 import { DidServiceEndpoint } from '@web5/dids';
 import BitcoinRpc from '../../bitcoin/rpc-client.js';
 import { Beacon } from '../../interfaces/beacon.js';
 import { BeaconService, BeaconSignal } from '../../interfaces/ibeacon.js';
 import { RawTransactionV2 } from '../../types/bitcoin.js';
-import { SidecarData, SignalMetadata, SignalsMetadata, SingletonSidecar } from '../../types/crud.js';
-
-const { process } = canonicalization;
+import { SidecarData, SignalsMetadata, SingletonSidecar } from '../../types/crud.js';
 
 /**
  * Implements {@link https://dcdpr.github.io/did-btc1/#singleton-beacon | 5.1 Singleton Beacon}.
@@ -92,7 +90,7 @@ export class SingletonBeacon extends Beacon {
    * @returns {Promise<DidUpdatePayload | undefined>} The DID Update payload announced by the Beacon Signal.
    * @throws {DidError} if the signalTx is invalid or the signalSidecarData is invalid.
    */
-  public async processSignal(signal: RawTransactionV2, signalsMetadata: SignalsMetadata): Promise<DidUpdateInvocation | undefined> {
+  public async processSignal(signal: RawTransactionV2, signalsMetadata: SignalsMetadata): Promise<DidUpdatePayload | undefined> {
     // Get the first output of the transaction
     const txOut = signal.vout[0];
 
@@ -112,13 +110,12 @@ export class SingletonBeacon extends Beacon {
 
     // Check if the hashBytes are in the sidecarData
     if (signalsMetadata) {
-      const updateHashBytes = await process(didUpdatePayload);
+      const updateHashBytes = await canonicalization.process(didUpdatePayload);
       console.log('updateHashBytes', updateHashBytes);
 
-      const updateHash = Buffer.from(updateHashBytes).toString('hex');
-      console.log('updateHash', updateHash);
+      console.log('UPDATE_PAYLOAD_HASH', UPDATE_PAYLOAD_HASH);
 
-      if (updateHash !== UPDATE_PAYLOAD_HASH) {
+      if (updateHashBytes !== UPDATE_PAYLOAD_HASH) {
         throw new SingletonBeaconError('Update payload hash does not match transaction hash.', 'PROCESS_SIGNAL_ERROR');
       }
     } else {
@@ -148,7 +145,7 @@ export class SingletonBeacon extends Beacon {
    * @returns {SignedRawTx} Successful output of a bitcoin transaction.
    * @throws {SingletonBeaconError} if the bitcoin address is invalid or unfunded.
    */
-  public async broadcastSignal(didUpdatePayload: DidUpdatePayload): Promise<SignalMetadata> {
+  public async broadcastSignal(didUpdatePayload: DidUpdatePayload): Promise<SignalsMetadata> {
     // Connect to the default bitcoind node
     const rpc = BitcoinRpc.connect();
 
@@ -162,7 +159,7 @@ export class SingletonBeacon extends Beacon {
     Logger.warn('// TODO: 3. Ensure bitcoinAddress is funded, if not, fund this address.');
 
     // 4. Set hashBytes to the result of passing didUpdatePayload to the JSON Canonicalization and Hash algorithm.
-    const hashBytes = await process(didUpdatePayload);
+    const hashBytes = await canonicalization.process(didUpdatePayload);
 
     // 5. Initialize spendTx to a Bitcoin transaction that spends a transaction controlled by the bitcoinAddress and
     //    contains at least one transaction output. This output MUST have the following format

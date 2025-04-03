@@ -191,7 +191,7 @@ export class Btc1Update {
     didUpdatePayload: DidUpdatePayload;
   }): Promise<SignalsMetadata> {
     const beaconServices: BeaconService[] = [];
-    const signalsMetadata: SignalsMetadata = new Map<TxId, Metadata>();
+    const signalsMetadataMap = new Map<TxId, Metadata>();
 
     // Find the beacon services in the sourceDocument
     for (const beaconId of beaconIds) {
@@ -206,10 +206,10 @@ export class Btc1Update {
     for (const beaconService of beaconServices) {
       const beacon = BeaconFactory.establish(beaconService);
       const signalMetadata = await beacon.broadcastSignal(didUpdatePayload);
-      Object.entries(signalMetadata).map(([signalId, metadata]) => signalsMetadata.set(signalId, metadata));
+      Object.entries(signalMetadata).map(([signalId, metadata]) => signalsMetadataMap.set(signalId, metadata));
     }
 
     // Return the signalsMetadata
-    return signalsMetadata;
+    return Object.fromEntries(Object.entries(signalsMetadataMap));
   }
 }

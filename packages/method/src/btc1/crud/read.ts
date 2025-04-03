@@ -1,4 +1,4 @@
-import { BitcoinNetworkNames, Btc1Error, Btc1ReadError, canonicalization, DidUpdateInvocation, DidUpdatePayload, Logger, UnixTimestamp } from '@did-btc1/common';
+import { BitcoinNetworkNames, Btc1Error, Btc1ReadError, canonicalization, DidUpdatePayload, Logger, UnixTimestamp } from '@did-btc1/common';
 import { Cryptosuite, DataIntegrityProof, Multikey } from '@did-btc1/cryptosuite';
 import { KeyPair, PublicKey } from '@did-btc1/key-pair';
 import { strings } from '@helia/strings';
@@ -22,7 +22,7 @@ import { Btc1DidDocument } from '../../utils/btc1/did-document.js';
 import JsonPatch from '../../utils/json-patch.js';
 import { BeaconFactory } from '../beacons/factory.js';
 
-const { process, canonicalize } = canonicalization;
+canonicalization.setAlgorithm('JCS');
 
 export type NetworkVersion = {
   version?: string;
@@ -197,7 +197,7 @@ export class Btc1Read {
             .map((vm: DidVerificationMethod) => ({ ...vm, controller: intermediateDocument.id }));
 
     // Sha256 hash the canonicalized byte array of the intermediateDocument
-    const hashBytes = await process(intermediateDocument);
+    const hashBytes = await canonicalization.process(intermediateDocument);
 
     // Validate the genesisBytes match the hashBytes
     if (bytesToHex(components.genesisBytes) !== hashBytes) {
@@ -372,7 +372,7 @@ export class Btc1Read {
     network: BitcoinNetworkNames;
     targetTime?: UnixTimestamp;
   }): Promise<BlockHeight> {
-    Logger.info('// TODO: determineTargetBlockHeight - Use network to connect to the correct bitcoin node', network);
+    Logger.warn('// TODO: determineTargetBlockHeight - Use network to connect to the correct bitcoin node', network);
 
     // If bitcoinClient is not defined, connect to default bitcoin node
     const rpc = BitcoinRpc.connect();
@@ -452,7 +452,7 @@ export class Btc1Read {
   }): Promise<Btc1DidDocument> {
     // 1. Set contemporaryHash to the SHA256 hash of the contemporaryDIDDocument
     // TODO: NEED TO DEAL WITH CANONICALIZATION
-    let contemporaryHash = await process(contemporaryDIDDocument);
+    let contemporaryHash = await canonicalization.process(contemporaryDIDDocument);
 
     // 3. For each beacon in beacons convert the beacon.serviceEndpoint to a Bitcoin address following BIP21.
     //    Set beacon.address to the Bitcoin address.
@@ -467,6 +467,7 @@ export class Btc1Read {
       // 4. Set nextSignals to the result of calling algorithm Find Next Signals passing in contemporaryBlockheight and
       //    beacons.
       const nextSignals = await this.findNextSignals({ beacons, contemporaryBlockHeight, network });
+      Logger.debug('nextSignals', nextSignals);
 
       // 5. Set contemporaryBlockHeight to nextSignals.blockheight.
       contemporaryBlockHeight = nextSignals.blockheight;
@@ -476,11 +477,9 @@ export class Btc1Read {
 
       // 7. Set updates to the result of calling algorithm Process Beacon Signals passing in signals and sidecarData.
       const updates = await this.processBeaconSignals(signals, signalsMetadata);
-      console.log('updates', updates);
 
       // 8. Set orderedUpdates to the list of updates ordered by the targetVersionId property.
       const orderedUpdates = updates.sort((a, b) => a.targetVersionId - b.targetVersionId);
-      console.log('orderedUpdates', orderedUpdates);
 
       // 9. For update in orderedUpdates:
       for (let update of orderedUpdates) {
@@ -510,14 +509,14 @@ export class Btc1Read {
           }
 
           // 9.2.5. Set updateHash to the result of passing update into the JSON Canonicalization and Hash algorithm.
-          const updateHash = await process(update);
+          const updateHash = await canonicalization.process(update);
 
           // 9.2.6. Push updateHash onto updateHashHistory.
           updateHashHistory.push(updateHash);
 
           // 9.2.7. Set contemporaryHash to result of passing contemporaryDIDDocument into the JSON Canonicalization
           //        and Hash algorithm.
-          contemporaryHash = await process(contemporaryDIDDocument);
+          contemporaryHash = await canonicalization.process(contemporaryDIDDocument);
 
           //  9.3. If update.targetVersionId is greater than currentVersionId + 1, MUST throw a LatePublishing error.
         } else if (update.targetVersionId > currentVersionId + 1) {
@@ -527,6 +526,7 @@ export class Btc1Read {
           );
         }
       }
+
       // 10. If contemporaryBlockheight equals targetBlockheight, return contemporaryDIDDocument.
       if(contemporaryBlockHeight === targetBlockHeight) {
         return new Btc1DidDocument(contemporaryDIDDocument);
@@ -719,7 +719,7 @@ export class Btc1Read {
    * @param {SignalsMetadata} signalsMetadata The sidecar data for the DID Document.
    * @returns {DidUpdatePayload[]} The updated DID Document object.
    */
-  public static async processBeaconSignals(signals: Array<Signal>, signalsMetadata: SignalsMetadata): Promise<DidUpdateInvocation[]> {
+  public static async processBeaconSignals(signals: Array<Signal>, signalsMetadata: SignalsMetadata): Promise<DidUpdatePayload[]> {
     // 1. Set updates to an empty array.
     const updates = new Array<DidUpdatePayload>();
 
@@ -738,7 +738,7 @@ export class Btc1Read {
           } = signal;
 
           // 2.4 Set signalSidecarData to signalsMetadata[signalId]. TODO: formalize structure of sidecarData
-          const signalSidecarData = signalsMetadata.get(id);
+          const signalSidecarData = new Map(Object.entries(signalsMetadata)).get(id);
           Logger.warn('// TODO: processBeaconSignals - formalize structure of sidecarData', signalSidecarData);
 
           // 2.6 If type == SingletonBeacon:
@@ -789,7 +789,7 @@ export class Btc1Read {
     Logger.warn('// TODO: Does this algorithm need `contemporaryHash` passed in?');
 
     // Hash the update payload
-    const updateHash = await process(update);
+    const updateHash = await canonicalization.process(update);
 
     // Get the historical update hash from the updateHashHistory
     const historicalUpdateHash = updateHashHistory[update.targetVersionId - 2];
@@ -818,10 +818,10 @@ export class Btc1Read {
    */
   public static async applyDidUpdate({ contemporaryDIDDocument, update }: {
     contemporaryDIDDocument: Btc1DidDocument;
-    update: DidUpdateInvocation;
+    update: DidUpdatePayload;
   }): Promise<Btc1DidDocument> {
     // 1. Set capabilityId to update.proof.capability.
-    const capabilityId = update.proof.capability;
+    const capabilityId = update.proof?.capability;
     if(!capabilityId) {
       throw new Btc1ReadError('No capabilityId found in update', 'INVALID_DID_UPDATE');
     }
@@ -876,7 +876,7 @@ export class Btc1Read {
     Logger.info('// TODO: applyDidUpdate - is this just application/json?');
 
     // 7. Set documentBytes to the bytes representation of update.
-    const document  = await canonicalize(update);
+    const document  = await canonicalization.canonicalize(update);
 
     // 8. Set verificationResult to the result of passing mediaType, documentBytes, cryptosuite, and
     //    expectedProofPurpose into the Verify Proof algorithm defined in the VC Data Integrity specification.
@@ -898,7 +898,7 @@ export class Btc1Read {
     Btc1DidDocument.validate(targetDIDDocument);
 
     // 13. Set targetHash to the SHA256 hash of targetDIDDocument.
-    const targetHash = await process(targetDIDDocument);
+    const targetHash = await canonicalization.process(targetDIDDocument);
 
     // 14. Check that targetHash equals update.targetHash, else raise InvalidDIDUpdate error.
     if (targetHash !== update.targetHash) {

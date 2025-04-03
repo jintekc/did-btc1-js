@@ -3,7 +3,7 @@ import { DidServiceEndpoint } from '@web5/dids';
 import { Beacon } from '../../interfaces/beacon.js';
 import { BeaconService, BeaconSignal } from '../../interfaces/ibeacon.js';
 import { RawTransactionV2 } from '../../types/bitcoin.js';
-import { CIDAggregateSidecar, SidecarData, SignalMetadata, SignalsMetadata } from '../../types/crud.js';
+import { CIDAggregateSidecar, SidecarData, SignalsMetadata } from '../../types/crud.js';
 
 /**
  * Implements {@link https://dcdpr.github.io/did-btc1/#cidaggregate-beacon | 5.2 CIDAggregate Beacon}.
@@ -123,7 +123,7 @@ export class CIDAggregateBeacon extends Beacon {
    * @returns {SignedRawTx} Successful output of a bitcoin transaction.
    * @throws {SingletonBeaconError} if the bitcoin address is invalid or unfunded.
    */
-  broadcastSignal(didUpdatePayload: DidUpdatePayload): Promise<SignalMetadata> {
+  broadcastSignal(didUpdatePayload: DidUpdatePayload): Promise<SignalsMetadata> {
     throw new Btc1Error('Method not implemented.', `METHOD_NOT_IMPLEMENTED`, didUpdatePayload);
   }
 

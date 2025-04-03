@@ -39,10 +39,10 @@ export interface Btc1SidecarData {
 };
 export type Metadata = {
   updatePayload: DidUpdatePayload;
-  proofs: any;
+  proofs?: any;
 };
-export type SignalMetadata = { [signalId: TxId]: Metadata; }
-export type SignalsMetadata = Map<TxId, Metadata>;
+
+export type SignalsMetadata = { [signalId: string]: Metadata; }
 
 export interface SingletonSidecar extends Btc1SidecarData {
   signalsMetadata: SignalsMetadata;
