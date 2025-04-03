@@ -51,3 +51,16 @@ export function bitIndex(i: number, key: Uint8Array): number {
   const bitPos = 7 - (i & 0x07);
   return (key[bytePos] >> bitPos) & 0x01;
 }
+
+/**
+ * makeKey creates a 32-byte key with the last 4 bytes set to the given number.
+ */
+export function makeKey(num: number): Uint8Array {
+  const key = new Uint8Array(32);
+  // Put the numeric value in the last 4 bytes, for example
+  key[28] = (num >>> 24) & 0xff;
+  key[29] = (num >>> 16) & 0xff;
+  key[30] = (num >>> 8) & 0xff;
+  key[31] = num & 0xff;
+  return key;
+}
