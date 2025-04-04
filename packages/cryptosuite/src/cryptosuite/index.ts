@@ -6,6 +6,7 @@ import {
   CryptosuiteError,
   DidUpdateInvocation,
   HashBytes,
+  Logger,
   Proof,
   PROOF_GENERATION_ERROR,
   PROOF_SERIALIZATION_ERROR,
@@ -157,29 +158,40 @@ export class Cryptosuite implements ICryptosuite {
    * Implements {@link ICryptosuite.verifyProof}.
    */
   public async verifyProof(document: DidUpdateInvocation): Promise<VerificationResult> {
+    Logger.debug('------------ Cryptosuite.verifyProof ------------\n\n', document);
+
     // Create an insecure document from the secure document by removing the proof
     const payload = { ...document, proof: undefined };
+    Logger.debug('payload=', payload);
 
     // Create a copy of the proof options removing the proof value
     const options = { ...document.proof, proofValue: undefined };
+    Logger.debug('options=', options);
 
     // Decode the secure document proof value from base58btc to bytes
     const proof = base58btc.decode(document.proof.proofValue);
+    Logger.debug('proof=', proof);
 
     // Transform the newly insecured document to canonical form
     const canonicalDocument = await this.transformDocument({ document: payload, options });
+    Logger.debug('canonicalDocument=', canonicalDocument);
 
     // Canonicalize the proof options to create a proof configuration
     const canonicalConfig = await this.proofConfiguration(options);
+    Logger.debug('canonicalConfig=', canonicalConfig);
 
     // Generate a hash of the canonical insecured document and the canonical proof configuration`
     const hash = this.generateHash({ canonicalConfig, canonicalDocument });
+    Logger.debug('hash=', hash);
 
     // Verify the hashed data against the proof bytes
     const verified = this.proofVerification({ hash, signature: proof, options });
+    Logger.debug('verified=', verified);
 
+    const result = { verified, verifiedDocument: verified ? document : undefined };
+    Logger.debug('result=', result);
     // Return the verification result
-    return { verified, verifiedDocument: verified ? document : undefined };
+    return result;
   }
 
   /**
@@ -275,7 +287,11 @@ export class Cryptosuite implements ICryptosuite {
   /**
    * Implements {@link ICryptosuite.proofVerification}.
    */
-  public proofVerification({ hash, signature, options }: ProofVerificationParams): boolean {
+  public proofVerification({ hash, signature, options }: {
+    hash: HashBytes;
+    signature: SignatureBytes;
+    options: ProofOptions;
+  }): boolean {
     // Get the verification method from the options
     const vm = options.verificationMethod;
     // Get the multikey fullId

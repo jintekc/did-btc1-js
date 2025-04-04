@@ -3,7 +3,7 @@ import { createHelia } from 'helia';
 import { sha256 } from '@noble/hashes/sha256';
 import { canonicalize } from '@web5/crypto';
 import { bech32 } from '@scure/base';
-import { Btc1Appendix } from '../src/index.js';
+import { Btc1Appendix } from '../../../../src/index.js';
 
 const parsable = (content: string) => {
   try {

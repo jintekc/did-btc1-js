@@ -14,6 +14,9 @@ export enum Btc1ErrorCode {
   /** The DID document supplied does not conform to valid syntax. */
   INVALID_DID_DOCUMENT = 'INVALID_DID_DOCUMENT',
 
+  /** The DID Update supplied does not conform to valid syntax. */
+  INVALID_DID_UPDATE = 'INVALID_DID_UPDATE',
+
   /** The byte length of a DID document does not match the expected value. */
   INVALID_DID_DOCUMENT_LENGTH = 'INVALID_DID_DOCUMENT_LENGTH',
 
@@ -64,6 +67,18 @@ export enum Btc1ErrorCode {
 
   /** The Multikey verification method was formed improperly. */
   MULTIKEY_VERIFICATION_METHOD_ERROR = 'MULTIKEY_VERIFICATION_METHOD_ERROR',
+
+ /** Something about the DID Update Payload indicates the potential for late publishing. */
+  LATE_PUBLISHING_ERROR = 'LATE_PUBLISHING_ERROR',
+
+  /** The sidecar data in the DID Update Payload was invalid. */
+  INVALID_SIDECAR_DATA = 'INVALID_SIDECAR_DATA',
+
+  /** The proof is missing or has a malformed challenge field. */
+  INVALID_CHALLENGE_ERROR = 'INVALID_CHALLENGE_ERROR',
+
+  /** The proof is missing or has a malformed domain field. */
+  INVALID_DOMAIN_ERROR = 'INVALID_DOMAIN_ERROR'
 }
 
 export const {
@@ -71,6 +86,7 @@ export const {
   METHOD_NOT_SUPPORTED,
   INTERNAL_ERROR,
   INVALID_DID_DOCUMENT,
+  INVALID_DID_UPDATE,
   INVALID_DID_DOCUMENT_LENGTH,
   INVALID_DID_URL,
   INVALID_PREVIOUS_DID_PROOF,
@@ -86,7 +102,11 @@ export const {
   PROOF_GENERATION_ERROR,
   PROOF_SERIALIZATION_ERROR,
   PROOF_PARSING_ERROR,
-  MULTIKEY_VERIFICATION_METHOD_ERROR
+  MULTIKEY_VERIFICATION_METHOD_ERROR,
+  LATE_PUBLISHING_ERROR,
+  INVALID_SIDECAR_DATA,
+  INVALID_CHALLENGE_ERROR,
+  INVALID_DOMAIN_ERROR
 } = Btc1ErrorCode;
 
 export type ErrorOptions = {

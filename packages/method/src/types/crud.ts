@@ -2,7 +2,7 @@ import { DidUpdatePayload, PrivateKeyBytes, ProofBytes, PublicKeyBytes } from '@
 import { DidBtc1Identifier } from '../btc1/crud/create.js';
 import { BeaconService } from '../interfaces/ibeacon.js';
 import { Btc1DidDocument, Btc1VerificationMethod } from '../utils/btc1/did-document.js';
-import { BlockV3, TxId } from './bitcoin.js';
+import { BlockV3 } from './bitcoin.js';
 
 export type DidPlaceholder = 'did:btc1:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
 
@@ -39,13 +39,14 @@ export interface Btc1SidecarData {
 };
 export type Metadata = {
   updatePayload: DidUpdatePayload;
-  proofs: any;
+  proofs?: any;
 };
-export type SignalMetadata = { [signalId: TxId]: Metadata; }
-export type SignalsMetadata = Map<TxId, Metadata>;
+
+export type SignalSidecarData = { [signalId: string]: Metadata; }
+export type SignalsMetadata = SignalSidecarData;
 
 export interface SingletonSidecar extends Btc1SidecarData {
-  signalsMetadata: SignalsMetadata;
+  signalsMetadata: SignalSidecarData;
 }
 export interface CIDAggregateSidecar extends Btc1SidecarData {
   initialDocument: Btc1DidDocument;

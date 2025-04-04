@@ -26,12 +26,12 @@ declare global {
 
     interface Date {
       getUTCDateTime(): string;
-      toUnixTimestamp(): number;
+      toUnix(): number;
     }
 
     interface String {
-      toSnakeCaseScreaming(): string;
-      toSnakeCase(): string;
+      toSnakeScream(): string;
+      toSnake(): string;
     }
 }
 
@@ -84,23 +84,22 @@ Date.prototype.getUTCDateTime = function (): string {
   return `${this.toISOString().slice(0, -5)}Z`;
 };
 
-Date.prototype.toUnixTimestamp = function (): number {
-  const date = new Date(this);
-  const time = date.getTime();
+Date.prototype.toUnix = function (): number {
+  const time = this.getTime();
   if (isNaN(time)) {
-    throw new Error(`Invalid date string: "${date}"`);
+    throw new Error(`Invalid date string: "${this}"`);
   }
   return time;
 };
 
-String.prototype.toSnakeCase = function (): string {
+String.prototype.toSnake = function (): string {
   return this
-    .replace(/[-_\s]+(.)?/g, (_, c) => (c ? c.toUpperCase() : ''))
-    .replace(/([a-z])([A-Z])/g, '$1_$2');
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .toLowerCase();
 };
 
-String.prototype.toSnakeCaseScreaming = function (): string {
-  return this.toSnakeCase().toUpperCase();
+String.prototype.toSnakeScream = function (): string {
+  return this.toSnake().toUpperCase();
 };
 
 export default global;

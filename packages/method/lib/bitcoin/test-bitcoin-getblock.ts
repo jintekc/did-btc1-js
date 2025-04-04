@@ -1,6 +1,6 @@
-import { DEFAULT_RPC_CLIENT_CONFIG } from '../src/bitcoin/constants.js';
-import BitcoinRpc from '../src/bitcoin/rpc-client.js';
-import { BlockV3 } from '../src/index.js';
+import { DEFAULT_RPC_CLIENT_CONFIG } from '../../src/bitcoin/constants.js';
+import BitcoinRpc from '../../src/bitcoin/rpc-client.js';
+import { BlockV3 } from '../../src/index.js';
 
 const rpc = BitcoinRpc.connect(DEFAULT_RPC_CLIENT_CONFIG);
 let height = 1;

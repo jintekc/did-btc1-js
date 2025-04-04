@@ -1,5 +1,5 @@
 import { IntermediateDocument } from '../../src/btc1/crud/interface.js';
-import { DidBtc1 } from '../src/did-btc1.js';
+import { DidBtc1 } from '../../../../src/did-btc1.js';
 import { idTypes, networks, versions } from '../../tests/test-data.js';
 const idType = idTypes.external as 'external';
 const intermediateDocument = {

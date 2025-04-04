@@ -1,5 +1,5 @@
 import { PrivateKeyUtils } from '@did-btc1/key-pair';
-import { DidBtc1 } from '../src/did-btc1.js';
+import { DidBtc1 } from '../../../../src/did-btc1.js';
 
 const privateKeyBytes = new Uint8Array([
   17,  87, 168, 209,  53,  45, 195, 181,
@@ -11,6 +11,6 @@ const { privateKey, publicKey } = PrivateKeyUtils.toKeyPair(privateKeyBytes);
 const pubKeyBytes = privateKey.computePublicKey().bytes;
 console.log('Creating BTC1 Identifier with { privateKey, publicKey }:', { privateKey, publicKey });
 
-const response = await DidBtc1.create({ idType: 'key', pubKeyBytes });
+const response = await DidBtc1.create({ idType: 'key', pubKeyBytes, options: { network: 'regtest' } });
 const data = JSON.stringify(response, null, 4);
 console.log('Created BTC1 Identifier and Initial Document:', data);

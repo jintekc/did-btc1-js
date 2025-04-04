@@ -15,6 +15,7 @@ export interface DidUpdatePayload {
     sourceHash: string;
     targetHash: string;
     targetVersionId: number;
+    proof?: Proof;
 }
 export interface DidUpdateInvocation extends DidUpdatePayload {
     proof: Proof;
@@ -35,7 +36,7 @@ export interface Proof {
   '@type'?: 'DataIntegrityProof';
   type?: 'DataIntegrityProof';
   created?: string;
-  cryptosuite: 'jcs' | 'rdfc';
+  cryptosuite: 'bip340-jcs-2025' | 'bip340-rdfc-2025';
   verificationMethod: string;
   proofPurpose: string;
   proofValue: string;

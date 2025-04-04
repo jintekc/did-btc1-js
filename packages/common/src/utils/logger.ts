@@ -73,13 +73,11 @@ export class Logger {
     const method = LEVEL_METHODS[level];
 
     const timestamp = new Date().toISOString();
-    const location = Logger.getCallerLocation();
     const namespace = this.namespace ? `[${this.namespace}]` : '';
 
     (console[method] as (...args: any[]) => void)(
-      `${chalk.gray(timestamp)} ${namespace}${color(level)}: ${chalk.white(message)}`,
-      ...args,
-      chalk.cyan(location)
+      `${chalk.gray(timestamp)} ${namespace} ${color(level)}: ${chalk.white(message)}`,
+      ...args
     );
   }
 

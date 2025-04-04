@@ -1,4 +1,4 @@
-import { bech32 } from '@scure/base';
+import { bech32m } from '@scure/base';
 import {
   Did,
   DidDocument,
@@ -11,6 +11,11 @@ import {
 import { Btc1Networks } from '../../types/crud.js';
 import { W3C_ZCAP_V1 } from './constants.js';
 import { Btc1RootCapability } from '../../interfaces/crud.js';
+import { CID } from 'multiformats';
+import { create as createDigest } from 'multiformats/hashes/digest';
+import { HashBytes, Logger } from '@did-btc1/common';
+import { strings } from '@helia/strings';
+import { createHelia } from 'helia';
 
 export interface DidComponents extends Did {
     hrp: string;
@@ -71,7 +76,7 @@ export class Btc1Appendix {
     }
 
     // Decode the idBech32 to bytes and hrp
-    const { prefix: hrp, bytes: genesisBytes } = bech32.decodeToBytes(idBech32);
+    const { prefix: hrp, bytes: genesisBytes } = bech32m.decodeToBytes(idBech32);
 
     // Validate the id is valid starting with 'x' or 'k'
     if (!['x', 'k'].includes(hrp)) {
@@ -339,6 +344,31 @@ export class Btc1Appendix {
 
     // 9. Return rootCapability.
     return rootCapability;
+  }
 
+  /**
+   * Implements {@link https://dcdpr.github.io/did-btc1/#fetch-content-from-addressable-storage | 9.3. Fetch Content from Addressable Storage}.
+   *
+   * The Fetch Content from Addressable Storage function takes in SHA256 hash of some content, hashBytes, converts these
+   * bytes to a IPFS v1 Content Identifier and attempts to retrieve the identified content from Content Addressable
+   * Storage (CAS). It returns the retrieved content or null.
+   *
+   * @param {HashBytes} hashBytes The SHA256 hash of the content to be fetched.
+   * @returns {string} The fetched content or null if not found.
+   */
+  public static async fetchFromCas(hashBytes: HashBytes): Promise<string | undefined> {
+    // 1. Set cid to the result of converting hashBytes to an IPFS v1 CID.
+    const cid = CID.create(1, 1, createDigest(1, hashBytes));
+
+    // Create a Helia node connection to IPFS
+    const helia = strings(await createHelia());
+
+    // 2. Set content to the result of fetching the cid from a CAS system. Which CAS systems checked is up to implementation.
+    Logger.warn('// TODO: Is this right? Are implementations just supposed to check all CAS they trust?');
+    const content = await helia.get(cid, {});
+
+    // 3. If content for cid cannot be found, set content to null.
+    // 4. Return content.
+    return content;
   }
 }
