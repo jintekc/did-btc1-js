@@ -89,7 +89,6 @@ export class Cryptosuite implements ICryptosuite {
     this.algorithm = cryptosuite.includes('rdfc') ? 'RDFC-1.0' : 'JCS';
   }
 
-
   /**
    * Constructs an instance of DataIntegrityProof from the current Cryptosuite instance.
    * @public

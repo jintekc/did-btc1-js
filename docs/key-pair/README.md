@@ -1,4 +1,4 @@
-**@did-btc1/key-pair v0.4.3**
+**@did-btc1/key-pair v0.4.5**
 
 ***
 

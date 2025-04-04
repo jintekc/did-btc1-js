@@ -1,4 +1,4 @@
-[**@did-btc1/key-pair v0.4.3**](../README.md)
+[**@did-btc1/key-pair v0.4.5**](../README.md)
 
 ***
 
@@ -6,11 +6,7 @@
 
 # Class: PublicKeyUtils
 
-<<<<<<< HEAD
-Defined in: [public-key.ts:211](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/public-key.ts#L211)
-=======
-Defined in: [public-key.ts:211](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/public-key.ts#L211)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [public-key.ts:211](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/public-key.ts#L211)
 
 Utility class for Multikey operations/
  PublicKeyUtils
@@ -31,11 +27,7 @@ Utility class for Multikey operations/
 
 > `static` **fromPrivateKey**(`pk`): [`PublicKey`](PublicKey.md)
 
-<<<<<<< HEAD
-Defined in: [public-key.ts:218](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/public-key.ts#L218)
-=======
-Defined in: [public-key.ts:218](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/public-key.ts#L218)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [public-key.ts:218](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/public-key.ts#L218)
 
 Computes the deterministic public key for a given private key.
 
@@ -59,11 +51,7 @@ A new PublicKey object
 
 > `static` **liftX**(`xBytes`): `Uint8Array`
 
-<<<<<<< HEAD
-Defined in: [public-key.ts:270](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/public-key.ts#L270)
-=======
-Defined in: [public-key.ts:270](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/public-key.ts#L270)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [public-key.ts:270](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/public-key.ts#L270)
 
 Lifts a 32-byte x-only coordinate into a full secp256k1 point (x, y).
 
@@ -87,11 +75,7 @@ Lifts a 32-byte x-only coordinate into a full secp256k1 point (x, y).
 
 > `static` **modPow**(`base`, `exp`, `mod`): `bigint`
 
-<<<<<<< HEAD
-Defined in: [public-key.ts:243](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/public-key.ts#L243)
-=======
-Defined in: [public-key.ts:243](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/public-key.ts#L243)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [public-key.ts:243](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/public-key.ts#L243)
 
 Computes modular exponentiation: (base^exp) % mod.
 Used for computing modular square roots.
@@ -128,11 +112,7 @@ The result of the modular exponentiation
 
 > `static` **sqrtMod**(`a`, `p`): `bigint`
 
-<<<<<<< HEAD
-Defined in: [public-key.ts:261](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/public-key.ts#L261)
-=======
-Defined in: [public-key.ts:261](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/public-key.ts#L261)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [public-key.ts:261](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/public-key.ts#L261)
 
 Computes `sqrt(a) mod p` using Tonelli-Shanks algorithm.
 This finds `y` such that `y^2 ≡ a mod p`.

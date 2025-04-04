@@ -1,4 +1,4 @@
-import { Btc1Error, PatchOperation, PublicKeyBytes } from '@did-btc1/common';
+import { Btc1Error, INVALID_DID_DOCUMENT, PatchOperation, PublicKeyBytes } from '@did-btc1/common';
 import type { DidResolutionResult, DidVerificationMethod, DidCreateOptions as IDidCreateOptions } from '@web5/dids';
 import {
   Did,
@@ -241,9 +241,6 @@ export class DidBtc1 implements DidMethod {
     verificationMethodId: string;
     beaconIds: string[];
   }): Promise<any> {
-    // Set the error code for invalid DID Document
-    const INVALID_DID_DOCUMENT = DidErrorCode.InvalidDidDocument.toSnakeCaseScreaming();
-
     // Deconstruct the params
     const { identifier, patch, sourceDocument, sourceVersionId } = params;
 

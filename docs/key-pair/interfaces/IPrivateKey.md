@@ -1,4 +1,4 @@
-[**@did-btc1/key-pair v0.4.3**](../README.md)
+[**@did-btc1/key-pair v0.4.5**](../README.md)
 
 ***
 
@@ -6,11 +6,7 @@
 
 # Interface: IPrivateKey
 
-<<<<<<< HEAD
-Defined in: [interface.ts:20](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L20)
-=======
-Defined in: [interface.ts:20](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L20)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:20](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L20)
 
 Interface for the PrivateKey class.
  IPrivateKey
@@ -21,11 +17,7 @@ Interface for the PrivateKey class.
 
 > `readonly` **bytes**: `Bytes`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:25](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L25)
-=======
-Defined in: [interface.ts:25](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L25)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:25](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L25)
 
 Get the private key bytes.
 
@@ -35,11 +27,7 @@ Get the private key bytes.
 
 > `readonly` **hex**: `Hex`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:44](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L44)
-=======
-Defined in: [interface.ts:44](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L44)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:44](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L44)
 
 Get the private key as a hex string.
 
@@ -49,11 +37,7 @@ Get the private key as a hex string.
 
 > `readonly` **point**: `bigint`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:38](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L38)
-=======
-Defined in: [interface.ts:38](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L38)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:38](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L38)
 
 Get the private key point.
 
@@ -63,11 +47,7 @@ Get the private key point.
 
 > **secret**: `bigint`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:32](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L32)
-=======
-Defined in: [interface.ts:32](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L32)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:32](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L32)
 
 Getter returns the private key bytes in secret form.
 Setter allows alternative method of using a bigint secret to genereate the private key bytes.
@@ -78,11 +58,7 @@ Setter allows alternative method of using a bigint secret to genereate the priva
 
 > **computePublicKey**(): [`PublicKey`](../classes/PublicKey.md)
 
-<<<<<<< HEAD
-Defined in: [interface.ts:59](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L59)
-=======
-Defined in: [interface.ts:59](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L59)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:59](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L59)
 
 Uses the private key to compute the corresponding public key.
 
@@ -102,11 +78,7 @@ PrivateKeyUtils.computePublicKey
 
 > **equals**(`other`): `boolean`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:51](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L51)
-=======
-Defined in: [interface.ts:51](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L51)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:51](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L51)
 
 Checks if this private key is equal to another private key.
 
@@ -128,11 +100,7 @@ True if the private keys are equal.
 
 > **isValid**(): `boolean`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:66](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L66)
-=======
-Defined in: [interface.ts:66](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L66)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:66](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L66)
 
 Checks if the private key is valid.
 
@@ -148,11 +116,7 @@ Whether the private key is valid.
 
 > **json**(): `PrivateKeyJSON`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:73](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L73)
-=======
-Defined in: [interface.ts:73](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L73)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:73](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L73)
 
 JSON representation of a PrivateKey object.
 

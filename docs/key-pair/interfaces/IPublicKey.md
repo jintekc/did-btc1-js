@@ -1,4 +1,4 @@
-[**@did-btc1/key-pair v0.4.3**](../README.md)
+[**@did-btc1/key-pair v0.4.5**](../README.md)
 
 ***
 
@@ -6,11 +6,7 @@
 
 # Interface: IPublicKey
 
-<<<<<<< HEAD
-Defined in: [interface.ts:82](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L82)
-=======
-Defined in: [interface.ts:82](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L82)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:82](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L82)
 
 Interface for the PublicKey class.
  IPublicKey
@@ -21,11 +17,7 @@ Interface for the PublicKey class.
 
 > **bytes**: `Bytes`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:87](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L87)
-=======
-Defined in: [interface.ts:87](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L87)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:87](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L87)
 
 Compressed public key getter.
 
@@ -35,11 +27,7 @@ Compressed public key getter.
 
 > `readonly` **hex**: `Hex`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:129](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L129)
-=======
-Defined in: [interface.ts:129](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L129)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:129](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L129)
 
 Public key hex string getter.
 
@@ -49,11 +37,7 @@ Public key hex string getter.
 
 > `readonly` **multibase**: `string`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:117](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L117)
-=======
-Defined in: [interface.ts:117](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L117)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:117](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L117)
 
 Public key multibase getter.
 
@@ -67,11 +51,7 @@ The public key as a base58btc multibase string.
 
 > `readonly` **parity**: `number`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:99](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L99)
-=======
-Defined in: [interface.ts:99](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L99)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:99](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L99)
 
 Public key parity getter.
 
@@ -81,11 +61,7 @@ Public key parity getter.
 
 > `readonly` **prefix**: `Bytes`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:123](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L123)
-=======
-Defined in: [interface.ts:123](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L123)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:123](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L123)
 
 Public key multibase prefix getter.
 
@@ -95,11 +71,7 @@ Public key multibase prefix getter.
 
 > `readonly` **uncompressed**: `Bytes`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:93](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L93)
-=======
-Defined in: [interface.ts:93](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L93)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:93](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L93)
 
 Uncompressed public key getter.
 
@@ -109,11 +81,7 @@ Uncompressed public key getter.
 
 > `readonly` **x**: `Bytes`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:105](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L105)
-=======
-Defined in: [interface.ts:105](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L105)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:105](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L105)
 
 Public key x-coordinate getter.
 
@@ -123,11 +91,7 @@ Public key x-coordinate getter.
 
 > `readonly` **y**: `Bytes`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:111](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L111)
-=======
-Defined in: [interface.ts:111](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L111)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:111](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L111)
 
 Public key y-coordinate getter.
 
@@ -137,11 +101,7 @@ Public key y-coordinate getter.
 
 > **decode**(): `Bytes`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:135](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L135)
-=======
-Defined in: [interface.ts:135](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L135)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:135](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L135)
 
 Decode the base58btc multibase string to the compressed public key prefixed with 0x02.
 
@@ -157,11 +117,7 @@ The public key as a 33-byte compressed public key with header.
 
 > **encode**(): `string`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:141](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L141)
-=======
-Defined in: [interface.ts:141](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L141)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:141](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L141)
 
 Encode the PublicKey as an x-only base58btc multibase public key.
 
@@ -177,11 +133,7 @@ The public key formatted a base58btc multibase string.
 
 > **equals**(`other`): `boolean`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:148](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L148)
-=======
-Defined in: [interface.ts:148](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L148)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:148](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L148)
 
 Public key equality check. Checks if `this` public key is equal to `other` public key.
 
@@ -205,11 +157,7 @@ True if the public keys are equal.
 
 > **json**(): `PublicKeyJSON`
 
-<<<<<<< HEAD
-Defined in: [interface.ts:154](https://github.com/jintekc/did-btc1-js/blob/4e83e31069f73b9a38a52892558302bd20237e8b/packages/key-pair/src/interface.ts#L154)
-=======
-Defined in: [interface.ts:154](https://github.com/jintekc/did-btc1-js/blob/c20c1728a05708ad9c42efd6a120ce1032864286/packages/key-pair/src/interface.ts#L154)
->>>>>>> a27f4cb (cli@0.1.0)
+Defined in: [interface.ts:154](https://github.com/jintekc/did-btc1-js/blob/af332da7c0dbfaa226d4a59473507b446d34322b/packages/key-pair/src/interface.ts#L154)
 
 JSON representation of a PublicKey object.
 
