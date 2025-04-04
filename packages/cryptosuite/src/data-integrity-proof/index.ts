@@ -1,4 +1,4 @@
-import { Btc1Error, DidUpdateInvocation, Logger, ObjectUtils, Proof, PROOF_GENERATION_ERROR, PROOF_PARSING_ERROR, } from '@did-btc1/common';
+import { Btc1Error, DidUpdateInvocation, INVALID_CHALLENGE_ERROR, INVALID_DOMAIN_ERROR, Logger, ObjectUtils, Proof, PROOF_GENERATION_ERROR, PROOF_PARSING_ERROR, PROOF_VERIFICATION_ERROR, } from '@did-btc1/common';
 import { Cryptosuite } from '../cryptosuite/index.js';
 import { VerificationResult } from '../cryptosuite/interface.js';
 import { AddProofParams, IDataIntegrityProof } from './interface.js';
@@ -69,46 +69,70 @@ export class DataIntegrityProof implements IDataIntegrityProof {
     expectedDomain?: string[];
     expectedChallenge?: string;
   }): Promise<VerificationResult> {
+    Logger.debug('------------ DataIntegrityProof.verifyProof ------------\n\n', { mediaType, document, expectedPurpose, expectedDomain, expectedChallenge });
     // Parse the document
-    const secure = JSON.parse(document) as DidUpdateInvocation;
+    if(!JSON.parsable(document)) {
+      throw new Btc1Error('Invalid document: must be parsable JSON string', PROOF_PARSING_ERROR, { document });
+    }
 
-    // Deconstruct the secure object to get the proof
-    const { proof }: { proof: Proof } = secure;
+    // Parse the document as a DidUpdateInvocation
+    const invocation = JSON.parse(document) as DidUpdateInvocation;
+    Logger.debug('invocation=', invocation);
+
+    // Deconstruct the invocation object to get the proof
+    const { proof }: { proof: Proof } = invocation;
+    Logger.debug('proof=', proof);
 
     // Check if the proof object is an object
-    if (typeof secure !== 'object' || typeof proof !== 'object') {
-      throw new Btc1Error('', PROOF_PARSING_ERROR);
+    if (typeof proof !== 'object') {
+      throw new Btc1Error('Invalid proof: must be an object of type Proof', PROOF_PARSING_ERROR, proof);
     }
 
     // Deconstruct the proof object
     const { type, proofPurpose, verificationMethod, challenge, domain } = proof;
     // Check if the type, proofPurpose, and verificationMethod are defined
     if (!type || !verificationMethod || !proofPurpose) {
-      throw new Btc1Error('', 'PROOF_VERIFICATION_ERROR');
+      throw new Btc1Error('Invalid proof: missing one of type, verificationMethod or proofPurpose',
+        PROOF_VERIFICATION_ERROR,
+        proof
+      );
     }
 
     // Check if the expectedPurpose is defined and if it matches the proofPurpose
     if (expectedPurpose && expectedPurpose !== proofPurpose) {
-      throw new Btc1Error('', 'PROOF_VERIFICATION_ERROR');
+      throw new Btc1Error(`Invalid proof: expectedPurpose ${expectedPurpose} !== proofPurpose ${proofPurpose}`,
+        PROOF_VERIFICATION_ERROR,
+        proof
+      );
     }
 
     // Check if the expectedChallenge is defined and if it matches the challenge
     if (expectedChallenge && expectedChallenge !== challenge) {
-      throw new Btc1Error('', 'INVALID_CHALLENGE_ERROR');
+      throw new Btc1Error(`Invalid proof: expectedChallenge ${expectedChallenge} !== challenge ${challenge}`,
+        INVALID_CHALLENGE_ERROR,
+        proof
+      );
     }
 
     // Check if the expectedDomain length matches the proof.domain length
     if(expectedDomain && expectedDomain?.length !== domain?.length) {
-      throw new Btc1Error('', 'INVALID_DOMAIN_ERROR');
+      throw new Btc1Error(`Invalid proof: expectedDomain ${expectedDomain} !== domain ${domain}`,
+        INVALID_DOMAIN_ERROR,
+        proof
+      );
     }
 
     // If defined, check that each entry in expectedDomain can be found in proof.domain
     if(expectedDomain && !expectedDomain?.every(url => domain?.includes(url))) {
-      throw new Btc1Error('', 'INVALID_DOMAIN_ERROR');
+      throw new Btc1Error(`Invalid proof: expectedDomain ${expectedDomain.join(', ')} !== domain ${domain}`,
+        INVALID_DOMAIN_ERROR,
+        proof
+      );
     }
 
     // Verify the proof
-    const { verified, verifiedDocument, mediaType: mt } = await this.cryptosuite.verifyProof(secure);
+    const { verified, verifiedDocument, mediaType: mt } = await this.cryptosuite.verifyProof(invocation);
+    Logger.debug('{verified, verifiedDocument, mediaType: mt}=', {verified, verifiedDocument, mt});
 
     // Add the mediaType to the verification result
     mediaType ??= mt;

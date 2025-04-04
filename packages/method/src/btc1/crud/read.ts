@@ -1,4 +1,4 @@
-import { BitcoinNetworkNames, Btc1Error, Btc1ReadError, canonicalization, DidUpdatePayload, INVALID_DID_DOCUMENT, LATE_PUBLISHING_ERROR, Logger, UnixTimestamp } from '@did-btc1/common';
+import { BitcoinNetworkNames, Btc1Error, Btc1ReadError, canonicalization, DidUpdatePayload, INVALID_DID_DOCUMENT, INVALID_DID_UPDATE, LATE_PUBLISHING_ERROR, Logger, UnixTimestamp } from '@did-btc1/common';
 import { Cryptosuite, DataIntegrityProof, Multikey } from '@did-btc1/cryptosuite';
 import { KeyPair, PublicKey } from '@did-btc1/key-pair';
 import { bytesToHex } from '@noble/hashes/utils';
@@ -107,12 +107,12 @@ export class Btc1Read {
     const { network: networkName, genesisBytes } = components;
 
     // Construct a new PublicKey
-    const { x, encode } = new PublicKey(genesisBytes);
-
+    const publicKey = new PublicKey(genesisBytes);
+    console.log('publicKey.x', publicKey.x);
     const service = BeaconUtils.generateBeaconServices({
       network    : getNetwork(networkName),
       beaconType : 'SingletonBeacon',
-      publicKey  : x
+      publicKey  : publicKey.bytes
     });
 
     // Return the resolved DID Document object
@@ -123,7 +123,7 @@ export class Btc1Read {
         type               : 'Multikey',
         controller         : identifier,
         // Encode the public key to publicKeyMultibase
-        publicKeyMultibase : encode()
+        publicKeyMultibase : publicKey.encode()
       }],
       // Generate the beacon services from the network and public key
       service
@@ -366,7 +366,7 @@ export class Btc1Read {
     network: BitcoinNetworkNames;
     targetTime?: UnixTimestamp;
   }): Promise<BlockHeight> {
-    Logger.warn('// TODO: determineTargetBlockHeight - Use network to connect to the correct bitcoin node', network);
+    // Logger.warn('// TODO: determineTargetBlockHeight - Use network to connect to the correct bitcoin node', network);
 
     // If bitcoinClient is not defined, connect to default bitcoin node
     const rpc = BitcoinRpc.connect();
@@ -408,7 +408,7 @@ export class Btc1Read {
     }
 
     // 2. Else find the Bitcoin block with the greatest blockheight that has at least X DEFAULT_BLOCK_CONFIRMATIONS.
-    Logger.warn('// TODO: determineTargetBlockHeight - TODO: what is X. Is it variable?');
+    // Logger.warn('// TODO: determineTargetBlockHeight - TODO: what is X. Is it variable?');
 
     let block = await rpc.getBlock({ height: tip }) as BlockV3;
     while (block.confirmations <= DEFAULT_BLOCK_CONFIRMATIONS) {
@@ -601,7 +601,7 @@ export class Btc1Read {
     beacons: Array<BeaconServiceAddress>;
     network: BitcoinNetworkNames;
   }): Promise<BeaconSignal>{
-    Logger.info('// TODO: findNextSignals - Use `network` to connect to the correct bitcoin node', network);
+    // Logger.warn('// TODO: findNextSignals - Use `network` to connect to the correct bitcoin node', network);
     /**
      * Convert serviceEndpoint to bitcoin address and create mapping of address to beaconService object
      * E.g.
@@ -760,7 +760,7 @@ export class Btc1Read {
 
           // 2.4 Set signalSidecarData to signalsMetadata[signalId]. TODO: formalize structure of sidecarData
           const signalSidecarData = new Map(Object.entries(signalsMetadata)).get(id);
-          Logger.warn('// TODO: processBeaconSignals - formalize structure of sidecarData', signalSidecarData);
+          // Logger.warn('// TODO: processBeaconSignals - formalize structure of sidecarData', signalSidecarData);
 
           // 2.6 If type == SingletonBeacon:
           //     2.6.1 Set didUpdatePayload to the result of passing signalTx and signalSidecarData to Process Singleton Beacon Signal algorithm.
@@ -807,7 +807,7 @@ export class Btc1Read {
     update: DidUpdatePayload;
     updateHashHistory: string[];
   }): Promise<void> {
-    Logger.warn('// TODO: Does this algorithm need `contemporaryHash` passed in?');
+    // Logger.warn('// TODO: Does this algorithm need `contemporaryHash` passed in?');
 
     // Hash the update payload
     const updateHash = await canonicalization.process(update);
@@ -841,14 +841,18 @@ export class Btc1Read {
     contemporaryDIDDocument: Btc1DidDocument;
     update: DidUpdatePayload;
   }): Promise<Btc1DidDocument> {
+    // Logger.debug('applyDidUpdate - contemporaryDIDDocument', contemporaryDIDDocument);
+    // Logger.debug('applyDidUpdate - update', update);
     // 1. Set capabilityId to update.proof.capability.
     const capabilityId = update.proof?.capability;
     if(!capabilityId) {
-      throw new Btc1ReadError('No capabilityId found in update', 'INVALID_DID_UPDATE');
+      throw new Btc1ReadError('No capabilityId found in update', INVALID_DID_UPDATE);
     }
+    // Logger.debug('applyDidUpdate - capabilityId', capabilityId);
 
     // 2. Set rootCapability to the result of passing capabilityId to the Dereference Root Capability Identifier algorithm.
     const rootCapability = Btc1Appendix.derefernceRootCapabilityIdentifier(capabilityId);
+    // Logger.debug('applyDidUpdate - rootCapability', rootCapability);
 
     // 3. If rootCapability.invocationTarget does not equal contemporaryDIDDocument.id
     //    and rootCapability.controller does not equal contemporaryDIDDocument.id, MUST throw an invalidDidUpdate error.
@@ -856,57 +860,66 @@ export class Btc1Read {
       rootCapability.invocationTarget !== contemporaryDIDDocument.id &&
         rootCapability.controller !== contemporaryDIDDocument.id
     ) {
-      throw new Btc1ReadError(`Invalid root capability: ${rootCapability}`, 'INVALID_DID_UPDATE');
+      throw new Btc1ReadError(`Invalid root capability: ${rootCapability}`, INVALID_DID_UPDATE);
     }
 
     // Deconstruct the vm and capabilityInvocation from the DID Document.
     const { verificationMethod, capabilityInvocation } = contemporaryDIDDocument;
+    // Logger.debug('applyDidUpdate - { verificationMethod, capabilityInvocation } ', { verificationMethod, capabilityInvocation } );
 
     // Validate the verificationMethod is not null.
     if(!verificationMethod) {
-      throw new Btc1ReadError('No verificationMethod found in DID Document', 'INVALID_DID_DOCUMENT');
+      throw new Btc1ReadError('No verificationMethod found in DID Document', INVALID_DID_DOCUMENT);
     }
 
     // Validate the capabilityInvocation is not null.
     if(!capabilityInvocation) {
-      throw new Btc1ReadError('No capabilityInvocation found in DID Document', 'INVALID_DID_DOCUMENT');
+      throw new Btc1ReadError('No capabilityInvocation found in DID Document', INVALID_DID_DOCUMENT);
     }
 
     // Deconstruct the id and controller from the verificationMethod.
     const { id, controller } = verificationMethod[0];
+    // Logger.debug('applyDidUpdate - { id, controller }', { id, controller });
 
     // Get the genesisBytes from the DID Document id.
     const { genesisBytes } = Btc1Appendix.parse(contemporaryDIDDocument.id);
+    // Logger.debug('applyDidUpdate - { genesisBytes }', { genesisBytes });
 
     // Construct a new KeyPair.
     const keyPair = new KeyPair({ publicKey: genesisBytes });
+    // Logger.debug('applyDidUpdate - keyPair', keyPair);
 
     // Construct a new Multikey.
     const multikey = new Multikey({ id, controller, keyPair });
-    Logger.info('// TODO: applyDidUpdate - Refactor Multikey to accept KeyPair or JSON object.');
+    // Logger.warn('// TODO: applyDidUpdate - Refactor Multikey to accept KeyPair or JSON object.');
+    // Logger.debug('applyDidUpdate - multikey', multikey);
 
     // 4. Instantiate a schnorr-secp256k1-2025 cryptosuite instance.
     const cryptosuite = new Cryptosuite({ cryptosuite: 'bip340-jcs-2025', multikey });
-    Logger.info('// TODO: applyDidUpdate - Refactor Cryptosuite to default to RDFC.');
+    // Logger.warn('// TODO: applyDidUpdate - Refactor Cryptosuite to default to RDFC.');
+    // Logger.debug('applyDidUpdate - cryptosuite', cryptosuite);
 
     // 2. Set expectedProofPurpose to capabilityInvocation.
-    const expectedPurpose = capabilityInvocation[0] as string;
-
+    const expectedPurpose = 'capabilityInvocation';
+    // Logger.debug('applyDidUpdate - expectedPurpose', expectedPurpose);
     // 6. Set mediaType to ????
     const mediaType = 'application/json';
-    Logger.info('// TODO: applyDidUpdate - is this just application/json?');
+    // Logger.warn('// TODO: applyDidUpdate - is this just application/json?');
 
     // 7. Set documentBytes to the bytes representation of update.
-    const document  = await canonicalization.canonicalize(update);
+    const document = await canonicalization.canonicalize(update);
+    // Logger.debug('applyDidUpdate - document', document);
 
     // 8. Set verificationResult to the result of passing mediaType, documentBytes, cryptosuite, and
     //    expectedProofPurpose into the Verify Proof algorithm defined in the VC Data Integrity specification.
     const diProof = new DataIntegrityProof(cryptosuite);
+    // Logger.debug('applyDidUpdate - diProof', diProof);
     const verificationResult = await diProof.verifyProof({ mediaType, document, expectedPurpose });
+    // Logger.debug('applyDidUpdate - verificationResult', verificationResult);
 
     // 9. If verificationResult.verified equals False, MUST raise a invalidUpdateProof exception.
     if(!verificationResult.verified) {
-      throw new Btc1ReadError('Proof cannot be verified', 'INVALID_UPDATE_PROOF');
+      throw new Btc1ReadError('Invalid update: proof not verified', INVALID_DID_UPDATE, verificationResult);
     }
 
     // 10. Set targetDIDDocument to a copy of contemporaryDIDDocument.
@@ -923,7 +936,7 @@ export class Btc1Read {
 
     // 14. Check that targetHash equals update.targetHash, else raise InvalidDIDUpdate error.
     if (targetHash !== update.targetHash) {
-      throw new Btc1ReadError(`Invalid update: ${targetHash} does not match ${update.targetHash}`, 'INVALID_DID_UPDATE');
+      throw new Btc1ReadError(`Invalid update: ${targetHash} does not match ${update.targetHash}`, INVALID_DID_UPDATE);
     }
 
     // 15. Return targetDIDDocument.

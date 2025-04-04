@@ -1,6 +1,6 @@
 import { canonicalization, PublicKeyBytes } from '@did-btc1/common';
 import { PublicKey } from '@did-btc1/key-pair';
-import { bech32 } from '@scure/base';
+import { bech32m } from '@scure/base';
 import type { DidService } from '@web5/dids';
 import { DidError, DidErrorCode } from '@web5/dids';
 import { getNetwork } from '../../bitcoin/network.js';
@@ -216,6 +216,6 @@ export class Btc1Create {
     }
 
     // Create DID from method prefix and Bech32 encoded public key
-    return `${didMethodPrefix}:${bech32.encodeFromBytes(hrp, genesisBytes)}`;
+    return `${didMethodPrefix}:${bech32m.encodeFromBytes(hrp, genesisBytes)}`;
   }
 }

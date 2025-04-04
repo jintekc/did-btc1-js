@@ -1,4 +1,4 @@
-import { bech32 } from '@scure/base';
+import { bech32m } from '@scure/base';
 import {
   Did,
   DidDocument,
@@ -76,7 +76,7 @@ export class Btc1Appendix {
     }
 
     // Decode the idBech32 to bytes and hrp
-    const { prefix: hrp, bytes: genesisBytes } = bech32.decodeToBytes(idBech32);
+    const { prefix: hrp, bytes: genesisBytes } = bech32m.decodeToBytes(idBech32);
 
     // Validate the id is valid starting with 'x' or 'k'
     if (!['x', 'k'].includes(hrp)) {

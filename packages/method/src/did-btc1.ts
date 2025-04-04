@@ -179,7 +179,6 @@ export class DidBtc1 implements DidMethod {
       // Produce a an XML Datetime UTC to indicate the timestamp of the Create operation.
       const created = new Date().getUTCDateTime();
 
-
       // Return the DID Resolution Result
       return {
         '@context'            : W3C_DID_RESOLUTION_V1,
