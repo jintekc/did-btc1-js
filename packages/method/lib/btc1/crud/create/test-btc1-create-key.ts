@@ -11,6 +11,6 @@ const { privateKey, publicKey } = PrivateKeyUtils.toKeyPair(privateKeyBytes);
 const pubKeyBytes = privateKey.computePublicKey().bytes;
 console.log('Creating BTC1 Identifier with { privateKey, publicKey }:', { privateKey, publicKey });
 
-const response = await DidBtc1.create({ idType: 'key', pubKeyBytes });
+const response = await DidBtc1.create({ idType: 'key', pubKeyBytes, options: { network: 'regtest' } });
 const data = JSON.stringify(response, null, 4);
 console.log('Created BTC1 Identifier and Initial Document:', data);

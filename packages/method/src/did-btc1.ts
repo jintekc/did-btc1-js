@@ -169,7 +169,7 @@ export class DidBtc1 implements DidMethod {
     try {
       // Parse the identifier into its components
       const components = Btc1Appendix.parse(identifier);
-
+      console.log('Parsed components:', components);
       // Set the components in the options
       options.components = components;
 
