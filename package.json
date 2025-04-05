@@ -5,9 +5,11 @@
   "type": "module",
   "workspaces": [
     "packages/common",
-    "packages/cryptosuite",
     "packages/key-pair",
-    "packages/method"
+    "packages/cryptosuite",
+    "packages/method",
+    "packages/cli",
+    "packages/smt"
   ],
   "scripts": {
     "cleanup": "pnpm npkill -d $(pwd)/packages -t dist && pnpm npkill -d $(pwd) -t node_modules",
@@ -38,6 +40,7 @@
     "cryptosuite": "pnpm --filter cryptosuite",
     "common": "pnpm --filter common",
     "cli": "pnpm --filter cli",
+    "smt": "pnpm --filter smt",
     "key-pair": "pnpm --filter key-pair",
     "method": "pnpm --filter method",
     "workflow": "pnpm install -r --no-lockfile && pnpm lint && pnpm build:all && pnpm test"

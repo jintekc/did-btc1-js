@@ -1,0 +1,13 @@
+{
+    "entryPoints": [
+        "./src/index.ts",
+    ],
+    "tsconfig": "./tsconfig.json",
+    "out": "../../docs/smt",
+    "exclude": [
+        "**/lib/**",
+        "**/dist/**",
+        "**/tests/**",
+        "**/node_modules/**"
+    ]
+}
