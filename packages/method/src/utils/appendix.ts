@@ -1,9 +1,6 @@
-import { HashBytes, Logger } from '@did-btc1/common';
+import { Bytes, HashBytes, Logger, W3C_ZCAP_V1 } from '@did-btc1/common';
 import { strings } from '@helia/strings';
-import { bytesToHex } from '@noble/hashes/utils';
-import { bech32m } from '@scure/base';
 import {
-  Did,
   DidDocument,
   DidError,
   DidErrorCode,
@@ -14,16 +11,14 @@ import {
 import { createHelia } from 'helia';
 import { CID } from 'multiformats';
 import { create as createDigest } from 'multiformats/hashes/digest';
-import { Btc1RootCapability } from '../../interfaces/crud.js';
-import { Btc1Networks } from '../../types/crud.js';
-import { W3C_ZCAP_V1 } from './constants.js';
+import { Btc1RootCapability } from '../interfaces/crud.js';
+import { Btc1VerificationMethod } from './did-document.js';
 
-export interface DidComponents extends Did {
+export interface DidComponents {
     hrp: string;
-    genesisBytes: string;
-    version: string;
+    version: number;
     network: string;
-    idBech32: string;
+    genesisBytes: Bytes;
 };
 
 /**
@@ -33,102 +28,6 @@ export interface DidComponents extends Did {
  * @type {Btc1Appendix}
  */
 export class Btc1Appendix {
-  /**
-   * Parses a `did:btc1` identifier into its components
-   * @param {string} identifier The BTC1 DID to be parsed
-   * @returns {DidComponents} The parsed identifier components
-   * @throws {DidError} if an error occurs while parsing the identifier
-   * @throws {DidErrorCode.InvalidDid} if identifier is invalid
-   * @throws {DidErrorCode.MethodNotSupported} if the method is not supported
-   */
-  static parse(identifier: string): DidComponents {
-    // Split the identifier into its components
-    const components = identifier.split(':') ?? [];
-
-    // Validate the identifier has at least 3 components
-    if (components.length < 3) {
-      throw new DidError(DidErrorCode.InvalidDid, `Invalid did: ${identifier}`);
-    }
-
-    // Deconstruct the components of the identifier: scheme, method, fields
-    // possible values in `fields`: [id], [{version|network}, id], [version, network, id]
-    const [scheme, method, ...fields] = components;
-
-    // Validate the scheme is 'did'
-    if (!scheme || scheme !== 'did') {
-      throw new DidError(DidErrorCode.InvalidDid, `Invalid did scheme: ${scheme} `);
-    }
-
-    // Validate the method is 'btc1'
-    if (!method || method !== 'btc1') {
-      throw new DidError(DidErrorCode.MethodNotSupported, `Did Method not supported: ${method} `);
-    }
-
-    // Validate the fields are not empty
-    if (fields.length < 1) {
-      throw new DidError(DidErrorCode.InvalidDid, `Invalid Did: ${identifier} `);
-    }
-
-    // Regardless of the length (3-5), the id should always be the last component
-    const idBech32 = fields.pop();
-    // Validate the idBech32 is defined
-    if (!idBech32) {
-      throw new DidError(DidErrorCode.InvalidDid, `Invalid Did: ${identifier} `);
-    }
-
-    // Decode the idBech32 to bytes and hrp
-    const { prefix: hrp, bytes: genesisBytes } = bech32m.decodeToBytes(idBech32);
-
-    // Validate the id is valid starting with 'x' or 'k'
-    if (!['x', 'k'].includes(hrp)) {
-      throw new DidError(DidErrorCode.InvalidDid, `Invalid Did: ${fields[0]} `);
-    }
-
-    // Set the valid idBech32 in identifierComponents object
-    const identifierComponents = {
-      idBech32,
-      version : '1',
-      network : 'mainnet',
-      hrp,
-    } as DidComponents;
-
-    // Set the hrp and genesisBytes in identifierComponents object
-    identifierComponents.hrp = hrp;
-    identifierComponents.genesisBytes = bytesToHex(genesisBytes);
-
-    // If no fields left, set version and network to default values
-    if (fields.length === 0) {
-      identifierComponents.version = '1';
-      identifierComponents.network = 'mainnet';
-    }
-    // If one field left, check if its a valid version Number and set version & network accordingly
-    else if (fields.length === 1) {
-      const version = Number(fields[0]);
-      const fieldIsVersion = !isNaN(version);
-      identifierComponents.version = fieldIsVersion ? fields[0] : '1';
-      identifierComponents.network = fieldIsVersion ? 'mainnet' : fields[0];
-    }
-    // If two fields left, set version and network accordingly
-    else if (fields.length === 2) {
-      identifierComponents.version = fields[0];
-      identifierComponents.network = fields[1];
-    }
-    // If any other length, throw InvalidDid error
-    else
-      throw new DidError(DidErrorCode.InvalidDid, `Invalid Did: ${identifier}`);
-
-    // Validate version is a positive number after being set
-    if (isNaN(Number(identifierComponents.version))) {
-      throw new DidError(DidErrorCode.InvalidDid, `Invalid Did: version must convert to a positive number`);
-    }
-    // Validate network is one of mainnet, testnet, signet or regtest after being set
-    if (!(identifierComponents.network in Btc1Networks)) {
-      throw new DidError(DidErrorCode.InvalidDid, `Invalid Did: network must be mainnet, testnet, signet or regtest`);
-    }
-
-    return identifierComponents;
-  }
-
   /**
    * Extracts a DID fragment from a given input
    * @param {unknown} input The input to extract the DID fragment from
@@ -175,32 +74,13 @@ export class Btc1Appendix {
     return true;
   }
 
-
-  /**
-   * Retrieves a verification method by its ID from the given DID Document.
-   * @public
-   * @param {{ didDocument: DidDocument; id: string; }} params The parameters for the function.
-   * @param {DidDocument} params.didDocument The DID Document to search in.
-   * @param {string} params.id The ID of the verification method to retrieve.
-   * @returns {(DidVerificationMethod | undefined)} The verification method with the specified ID, or undefined if not found.
-   */
-  public static getVerificationMethodById({ didDocument, id }: {
-    didDocument: DidDocument;
-    id: string;
-  }): DidVerificationMethod | undefined {
-    // Get the verification methods from the DID Document
-    const vms = Btc1Appendix.getVerificationMethods({ didDocument });
-    // Find the verification method with the matching ID
-    return vms.find((method) => method.id === id);
-  }
-
   /**
    * Extracts the verification methods from a given DID Document
    * @param {DidDocument} params.didDocument The DID Document to extract the verification methods from
    * @returns {DidVerificationMethod[]} An array of DidVerificationMethod objects
    * @throws {TypeError} if the didDocument is not provided
    */
-  public static getVerificationMethods({ didDocument }: { didDocument: DidDocument; }): DidVerificationMethod[] {
+  public static getVerificationMethods({ didDocument }: { didDocument: DidDocument; }): Btc1VerificationMethod[] {
     if (!didDocument) throw new TypeError(`Required parameter missing: 'didDocument'`);
     const verificationMethods: DidVerificationMethod[] = [];
     // Check the 'verificationMethod' array.
@@ -212,7 +92,7 @@ export class Btc1Appendix {
           ?.filter(Btc1Appendix.isDidVerificationMethod) ?? []
       );
     });
-    return verificationMethods;
+    return verificationMethods as Btc1VerificationMethod[];
   }
 
 

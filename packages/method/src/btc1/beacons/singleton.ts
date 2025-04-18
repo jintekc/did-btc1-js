@@ -5,7 +5,7 @@ import { Beacon } from '../../interfaces/beacon.js';
 import { BeaconService, BeaconSignal } from '../../interfaces/ibeacon.js';
 import { RawTransactionV2 } from '../../types/bitcoin.js';
 import { Metadata, SidecarData, SignalsMetadata, SingletonSidecar } from '../../types/crud.js';
-import { Btc1Appendix } from '../../utils/btc1/appendix.js';
+import { Btc1Appendix } from '../../utils/appendix.js';
 
 /**
  * Implements {@link https://dcdpr.github.io/did-btc1/#singleton-beacon | 5.1 Singleton Beacon}.

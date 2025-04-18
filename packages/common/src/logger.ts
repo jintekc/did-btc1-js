@@ -1,4 +1,3 @@
-
 import chalk, { ChalkInstance } from 'chalk';
 import path from 'path';
 

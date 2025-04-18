@@ -1,18 +1,9 @@
 import { strings } from '@helia/strings';
-import { createHelia } from 'helia';
 import { sha256 } from '@noble/hashes/sha256';
-import { canonicalize } from '@web5/crypto';
 import { bech32 } from '@scure/base';
-import { Btc1Appendix } from '../../../../src/index.js';
-
-const parsable = (content: string) => {
-  try {
-    const parsed = JSON.parse(content);
-    return typeof parsed === 'object' && parsed !== null;
-  } catch {
-    return false;
-  }
-};
+import { canonicalize } from '@web5/crypto';
+import { createHelia } from 'helia';
+import { Btc1Identifier } from '../../../../src/index.js';
 
 const did = 'did:btc1:x1rfkaxzfh23nrh33llxysztuhssguysnkywexde4wghszrvqc570q7gtfea';
 const didDocument = {
@@ -59,7 +50,7 @@ console.log('genesisBytes', genesisBytes);
 const hexDigest = Buffer.from(genesisBytes).toString('hex');
 console.log('hexDigest', hexDigest);
 
-const identifierComponents = Btc1Appendix.parse(did);
+const identifierComponents = Btc1Identifier.decode(did);
 console.log('identifierComponents', identifierComponents);
 
 const hashBytes = identifierComponents.genesisBytes;
@@ -70,7 +61,7 @@ const cid = await helia.add(hashBytes.toString(), {});
 console.log('cid', cid);
 // const cid = CID.create(1, 1, Digest.create(1, hashBytes));
 const content = await helia.get(cid, {});
-if (!parsable(content)) {
+if (!JSON.parsable(content)) {
   throw new Error('Invalid DID Document content');
 }
 const document = JSON.parse(content);

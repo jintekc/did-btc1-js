@@ -253,22 +253,6 @@ export interface SmtProof {
 }
 
 /**
- * A generic Beacon service entry in a did:btc1 DID Document's `service` array.
- * The spec references the following types:
- *   - SingletonBeacon
- *   - CIDAggregateBeacon
- *   - SMTAggregateBeacon
- *
- * DID BTC1
- * {@link https://dcdpr.github.io/did-btc1/#update-beacons | 5. Update Beacons}.
- */
-export interface BeaconService {
-  id: string;             // e.g. "#singletonBeacon"
-  type: BeaconType;       // "SingletonBeacon" | "CIDAggregateBeacon" | "SMTAggregateBeacon"
-  serviceEndpoint: string; // Typically a BIP21 URI with a Bitcoin address
-}
-
-/**
  * The known Beacon types from the spec.
  */
 export type BeaconType =

@@ -21,15 +21,13 @@ export * from './interfaces/beacon.js';
 export * from './interfaces/crud.js';
 export * from './interfaces/ibeacon.js';
 
-export * from './types/beacons.js';
 export * from './types/bitcoin.js';
 export * from './types/crud.js';
 
-export * from './utils/btc1/beacon-utils.js';
-export * from './utils/btc1/appendix.js';
-export * from './utils/btc1/constants.js';
-export * from './utils/btc1/did-document.js';
+export * from './utils/appendix.js';
+export * from './utils/beacons.js';
+export * from './utils/did-document.js';
 export * from './utils/general.js';
-export * from './utils/json-patch.js';
+export * from './utils/identifier.js';
 
 export * from './did-btc1.js';

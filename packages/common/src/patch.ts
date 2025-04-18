@@ -1,5 +1,6 @@
-import { Btc1Error, PatchOperation } from '@did-btc1/common';
-import { Btc1DidDocument } from './btc1/did-document.js';
+import { PatchOperation } from './interfaces/btc1.js';
+import { JSONObject } from './types/general.js';
+import { Btc1Error } from './errors.js';
 
 /**
  * Implementation of {@link https://datatracker.ietf.org/doc/html/rfc6902 | IETF RFC 6902 JSON Patch}.
@@ -8,19 +9,19 @@ import { Btc1DidDocument } from './btc1/did-document.js';
  * apply to a JavaScript Object Notation (JSON) document; it is suitable for use with the HTTP PATCH method. The
  * "application/json-patch+json" media type is used to identify such patch documents.
  *
- * @class JsonPatch
- * @type {JsonPatch}
+ * @class Patch
+ * @type {Patch}
  */
-export default class JsonPatch {
+export class Patch {
   /**
    * Applies a JSON Patch to a source document and returns the patched document.
-   * @param {Btc1DidDocument} sourceDocument The source document to patch.
+   * @param {JSONObject} sourceDocument The source document to patch.
    * @param {PatchOperation[]} operations The JSON Patch operations to apply.
-   * @returns {Btc1DidDocument} The patched document.
+   * @returns {JSONObject} The patched document.
    * @throws {Error} If an unsupported operation is provided.
    */
-  public static apply(sourceDocument: Btc1DidDocument, operations: PatchOperation[]): Btc1DidDocument {
-    const patchedDocument = JSON.parse(JSON.stringify(sourceDocument));
+  public apply(sourceDocument: JSONObject, operations: PatchOperation[]): JSONObject {
+    const patchedDocument = JSON.normalize(sourceDocument);
 
     for (const operation of operations) {
       const { op, path, value, from } = operation;
@@ -29,34 +30,34 @@ export default class JsonPatch {
 
       switch (op) {
         case 'add':
-          JsonPatch.setValue(patchedDocument, segments, value);
+          this.setValue(patchedDocument, segments, value);
           break;
 
         case 'remove':
-          JsonPatch.removeValue(patchedDocument, segments);
+          this.removeValue(patchedDocument, segments);
           break;
 
         case 'replace':
-          JsonPatch.setValue(patchedDocument, segments, value);
+          this.setValue(patchedDocument, segments, value);
           break;
 
         case 'move':{
           if (!from) throw new Error('Missing \'from\' in move operation');
           const fromSegments = from.split('/').slice(1);
-          const movedValue = JsonPatch.getValue(patchedDocument, fromSegments);
-          JsonPatch.removeValue(patchedDocument, fromSegments);
-          JsonPatch.setValue(patchedDocument, segments, movedValue);
+          const movedValue = this.getValue(patchedDocument, fromSegments);
+          this.removeValue(patchedDocument, fromSegments);
+          this.setValue(patchedDocument, segments, movedValue);
           break;
         }
         case 'copy':{
           if (!from) throw new Error('Missing \'from\' in copy operation');
-          const copiedValue = JsonPatch.getValue(patchedDocument, from.split('/').slice(1));
-          JsonPatch.setValue(patchedDocument, segments, copiedValue);
+          const copiedValue = this.getValue(patchedDocument, from.split('/').slice(1));
+          this.setValue(patchedDocument, segments, copiedValue);
           break;
 
         }
         case 'test':{
-          const existingValue = JsonPatch.getValue(patchedDocument, segments);
+          const existingValue = this.getValue(patchedDocument, segments);
           if (JSON.stringify(existingValue) !== JSON.stringify(value)) {
             throw new Btc1Error(`Test operation failed at path`, 'JSON_PATCH_APPLY_ERROR', { path });
           }
@@ -78,7 +79,7 @@ export default class JsonPatch {
    * @param {string[]} path The path to the value.
    * @returns {*} The value at the given path.
    */
-  private static getValue(obj: any, path: string[]): any {
+  private getValue(obj: any, path: string[]): any {
     return path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
   }
 
@@ -91,7 +92,7 @@ export default class JsonPatch {
    * @param {*} value The value to set.
    * @returns {*} The object with the value set.
    */
-  private static setValue(obj: any, path: string[], value: any): void {
+  private setValue(obj: any, path: string[], value: any): void {
     let current = obj;
     for (let i = 0; i < path.length - 1; i++) {
       const key = path[i];
@@ -109,7 +110,7 @@ export default class JsonPatch {
    * @param {string[]} path The path to the value.
    * @returns {*} The object with the value removed.
    */
-  private static removeValue(obj: any, path: string[]): void {
+  private removeValue(obj: any, path: string[]): void {
     let current = obj;
     for (let i = 0; i < path.length - 1; i++) {
       const key = path[i];

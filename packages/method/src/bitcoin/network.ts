@@ -32,15 +32,16 @@ export const signet = {
 
 export function getNetwork(network: string): networks.Network {
   switch (network) {
-    case 'mainnet':
+    case 'bitcoin':
       return networks.bitcoin;
-    case 'testnet':
-      return networks.testnet;
     case 'signet':
       return signet;
     case 'regtest':
       return networks.regtest;
+    case 'testnet3':
+    case 'testnet4':
+      return networks.testnet;
     default:
-      throw new Error(`Unknown network: ${network}`);
+      throw new Error(`Unknown network "${network}"`);
   }
 }

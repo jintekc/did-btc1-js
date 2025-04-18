@@ -1,19 +1,7 @@
-import { BitcoinNetworkNames } from '@did-btc1/common';
-import { DidResolutionOptions as IDidResolutionOptions, DidVerificationMethod as IDidVerificationMethod } from '@web5/dids';
+import { BitcoinNetworkNames, SidecarData, UnixTimestamp } from '@did-btc1/common';
+import { DidResolutionOptions as IDidResolutionOptions } from '@web5/dids';
 import BitcoinRpc from '../bitcoin/rpc-client.js';
-import { DidPlaceholder, SidecarData, UnixTimestamp } from '../types/crud.js';
-import { Btc1DidDocument } from '../utils/btc1/did-document.js';
-
-export interface DidVerificationMethod extends IDidVerificationMethod {
-    id: string;
-    type: string;
-    controller: DidPlaceholder;
-    publicKeyMultibase: string;
-}
-export interface IntermediateDocument extends Btc1DidDocument {
-    id:  DidPlaceholder;
-    verificationMethod: DidVerificationMethod[];
-}
+import { Btc1DidDocument } from '../utils/did-document.js';
 
 /**
  * Options for resolving a DID Document

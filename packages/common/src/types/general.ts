@@ -1,3 +1,7 @@
+export type Maybe<T> = T | any;
+export type JSONObject = Record<string | number | symbol, any>; // JSON object: prototyped or unprototyped
+export type Prototyped = JSONObject;
+export type Unprototyped = JSONObject;
 export type TwoDigits = `${number}${number}`;
 export type ThreeDigits = `${number}${number}${number}`;
 export type Year = `${1 | 2}${ThreeDigits}`;

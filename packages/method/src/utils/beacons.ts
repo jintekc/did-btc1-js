@@ -1,10 +1,10 @@
+import { DidBtc1Error, Maybe, PublicKeyBytes } from '@did-btc1/common';
 import { DidDocument, DidService } from '@web5/dids';
 import { networks, payments } from 'bitcoinjs-lib';
-import { Maybe } from '@did-btc1/common';
-import { BeaconFactory } from '../../btc1/beacons/factory.js';
-import { BeaconService, BeaconServiceAddress } from '../../interfaces/ibeacon.js';
-import { PublicKeyBytes, DidBtc1Error } from '@did-btc1/common';
+import { BeaconFactory } from '../btc1/beacons/factory.js';
+import { BeaconService, BeaconServiceAddress } from '../interfaces/ibeacon.js';
 import { Btc1Appendix } from './appendix.js';
+import { getNetwork } from '../bitcoin/network.js';
 
 /**
  * Required parameters for generating Beacon Services.
@@ -114,17 +114,17 @@ export class BeaconUtils {
   /**
    * Generate beacon services.
    * @param {GenerateBeaconServicesParams} params Required parameters for generating Beacon Services.
-   * @param {Network} params.network The Bitcoin network to use (mainnet or testnet).
+   * @param {string} params.network The name of the Bitcoin network to use.
    * @param {Uint8Array} params.publicKey Byte array representation of a public key used to generate a new btc1 key-id-type.
    * @param {string} params.beaconType Optional beacon type to use (default: SingletonBeacon).
    * @returns {DidService[]} Array of DidService objects.
    */
   public static generateBeaconServices({ network, beaconType, publicKey }: {
     publicKey: PublicKeyBytes;
-    network: networks.Network
+    network: string;
     beaconType: string;
   }): Array<BeaconService> {
-    return this.generateBitcoinAddrs({ network, publicKey })
+    return this.generateBitcoinAddrs({ network: getNetwork(network), publicKey })
       .map(([id, address]) =>
         this.generateBeaconService({
           id              : id,
@@ -141,7 +141,7 @@ export class BeaconUtils {
    * @param {string} params.serviceId The type of service being created (#initialP2PKH, #initialP2WPKH, #initialP2TR).
    * @param {string} params.beaconType The type of beacon service being created (SingletonBeacon, SMTAggregatorBeacon).
    * @param {BitcoinAddress} params.bitcoinAddress The bitcoin address to use for the service endpoint.
-   * @returns {DidService} One DidService object.
+   * @returns {BeaconService} One BeaconService object.
    */
   public static generateBeaconService(params: BeaconService): BeaconService {
     return BeaconFactory.establish(params).service;

@@ -1,9 +1,6 @@
-import { Canonicalization } from './utils/canonicalization.js';
-
-export type Maybe<T> = T | any;
-export type JSONObject = Record<string | number | symbol, any>; // JSON object: prototyped or unprototyped
-export type Prototyped = JSONObject;
-export type Unprototyped = JSONObject;
+import { Canonicalization } from './canonicalization.js';
+import { Patch } from './patch.js';
+import { JSONObject, Maybe, Prototyped, Unprototyped } from './types/general.js';
 
 /** Extend the global namespace */
 declare global {
@@ -11,6 +8,7 @@ declare global {
     interface Array<T> {
         /** Get the last element of the array */
         last(): T | undefined;
+        [-1](): T | undefined;
     }
     /** Extend the JSON class interface */
     interface JSON {
@@ -36,6 +34,8 @@ declare global {
         delete({ obj, key }: { obj: JSONObject, key: string }): JSONObject;
         /** Canonicalization object */
         canonicalization: Canonicalization;
+        /** JSON Patch (IETF RFC 6902) */
+        patch: Patch;
     }
 
     interface Date {
@@ -51,6 +51,10 @@ declare global {
 
 Array.prototype.last = function <T>(): T | undefined {
   return this[this.length - 1] ?? undefined;
+};
+
+Array.prototype[-1] = function <T>(): T | undefined {
+  return this.last();
 };
 
 JSON.is = function (unknown: Maybe<JSONObject>): boolean {
@@ -175,6 +179,7 @@ JSON.delete = function({ obj, key }: { obj: JSONObject, key: string }): JSONObje
 };
 
 JSON.canonicalization = new Canonicalization();
+JSON.patch = new Patch();
 
 Date.prototype.getUTCDateTime = function (): string {
   return `${this.toISOString().slice(0, -5)}Z`;

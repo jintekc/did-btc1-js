@@ -14,17 +14,21 @@ export type Btc1Identifier = string;
 export type Controller = Btc1Identifier;
 export type Id = 'initialKey';
 export type FullId = `${Controller}#${Id}`;
-export enum DidBtc1IdTypes {
-    key = 'key',
-    external = 'external'
-};
-export enum BitcoinNetworks {
-    mainnet = 'mainnet',
-    testnet = 'testnet',
-    signet = 'signet',
-    regtest = 'regtest'
-};
+export enum Btc1CreateIdTypes {
+    KEY = 'KEY',
+    EXTERNAL = 'EXTERNAL'
+}
+export enum BitcoinNetworkNames {
+    bitcoin = 0,
+    signet = 1,
+    regtest = 2,
+    testnet3 = 3,
+    testnet4 = 4
+}
 export type KeyIdentifier = string;
 export type BeaconUri = string;
-export type BitcoinNetworkNames = 'mainnet' | 'testnet' | 'signet' | 'regtest';
 export type DidPlaceholder = 'did:btc1:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+export type CanonicalizedProofConfig = string;
+export type CryptosuiteName = 'bip340-jcs-2025' | 'bip340-rdfc-2025';
+export type ContextObject = Record<string | number | symbol, any>;
+export type Context = string | string[] | ContextObject | ContextObject[]

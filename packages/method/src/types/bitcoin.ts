@@ -1,6 +1,5 @@
-import { Hex } from '@did-btc1/common';
+import { Hex, UnixTimestamp } from '@did-btc1/common';
 import BitcoinRpc from '../bitcoin/rpc-client.js';
-import { UnixTimestamp } from './crud.js';
 
 export interface ReturnFormatOptions {
     extension?: 'json' | 'bin' | 'hex';

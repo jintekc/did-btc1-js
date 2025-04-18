@@ -5,6 +5,7 @@
 did:btc1 is a censorship resistant DID Method using the Bitcoin blockchain as a Verifiable Data Registry to announce changes to the DID document. It improves on prior work by allowing: zero-cost off-chain DID creation; aggregated updates for scalable on-chain update costs; long-term identifiers that can support frequent updates; private communication of the DID document; private DID resolution; and non-repudiation appropriate for serious contracts.
 
 did:btc1 is created for those who wish to have it all:
+
 * resistance to censorship;
 * non-correlation through pairwise DIDs;
 * private communication of the DID document;
@@ -98,7 +99,7 @@ const update = await DidBtc1.update({
       }
     }
   ],],
-  verificationMethodId : `${did}#initialP2PKH`,
+  verificationMethodId : `#initialP2PKH`,
   beaconIds            : [`${did}#initialP2PKH`],
 });
 
@@ -121,7 +122,6 @@ console.log('initialDocument', initialDocument);
 * [@did-btc1/common](/packages/common/README.md)
 * [@did-btc1/key-pair](/packages/key-pair/README.md)
 * [@did-btc1/method](/packages/method/README.md)
-
 
 ## Package Versions
 

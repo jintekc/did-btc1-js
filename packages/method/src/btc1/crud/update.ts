@@ -1,4 +1,5 @@
 import {
+  BTC1_DID_UPDATE_PAYLOAD_CONTEXT,
   Btc1Error,
   DidUpdateInvocation,
   DidUpdatePayload,
@@ -15,10 +16,8 @@ import type { DidService } from '@web5/dids';
 import { BeaconService } from '../../interfaces/ibeacon.js';
 import { TxId } from '../../types/bitcoin.js';
 import { Metadata, SignalsMetadata } from '../../types/crud.js';
-import { Btc1Appendix } from '../../utils/btc1/appendix.js';
-import { BTC1_DID_UPDATE_PAYLOAD_CONTEXT } from '../../utils/btc1/constants.js';
-import { Btc1DidDocument, Btc1VerificationMethod } from '../../utils/btc1/did-document.js';
-import JsonPatch from '../../utils/json-patch.js';
+import { Btc1Appendix } from '../../utils/appendix.js';
+import { Btc1DidDocument, Btc1VerificationMethod } from '../../utils/did-document.js';
 import { BeaconFactory } from '../beacons/factory.js';
 import { Btc1KeyManager } from '../key-manager/index.js';
 
@@ -91,7 +90,7 @@ export class Btc1Update {
 
     // 5. Set targetDocument to the result of applying the documentPatch to the sourceDocument, following the JSON Patch
     //    specification.
-    const targetDocument = JsonPatch.apply(sourceDocument, patch);
+    const targetDocument = JSON.patch.apply(sourceDocument, patch) as Btc1DidDocument;
 
     // 6. Validate targetDocument is a conformant DID document, else MUST raise invalidDIDUpdate error.
     Btc1DidDocument.validate(targetDocument);

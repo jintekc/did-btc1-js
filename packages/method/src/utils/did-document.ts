@@ -1,10 +1,9 @@
-import { DidDocumentError, INVALID_DID_DOCUMENT } from '@did-btc1/common';
+import { BTC1_DID_DOCUMENT_CONTEXT, DidDocumentError, ID_PLACEHOLDER_VALUE, INVALID_DID_DOCUMENT, Logger } from '@did-btc1/common';
 import { DidService, DidVerificationMethod, DidDocument as IDidDocument } from '@web5/dids';
-import { DidBtc1Identifier } from '../../btc1/crud/create.js';
-import { BeaconService } from '../../interfaces/ibeacon.js';
+import { BeaconService } from '../interfaces/ibeacon.js';
 import { Btc1Appendix } from './appendix.js';
-import { BeaconUtils } from './beacon-utils.js';
-import { BTC1_DID_DOCUMENT_CONTEXT } from './constants.js';
+import { BeaconUtils } from './beacons.js';
+import { Btc1Identifier } from './identifier.js';
 
 /**
  * DID BTC1 Verification Method extends the DidVerificationMethod class adding helper methods and properties
@@ -16,10 +15,10 @@ export class Btc1VerificationMethod implements DidVerificationMethod {
   id: string;
   type: string;
   controller: string;
-  publicKeyMultibase?: string | undefined;
+  publicKeyMultibase: string;
   privateKeyMultibase?: string | undefined;
 
-  constructor(id: string, type: string, controller: string, publicKeyMultibase?: string, privateKeyMultibase?: string) {
+  constructor(id: string, type: string, controller: string, publicKeyMultibase: string, privateKeyMultibase?: string) {
     this.id = id;
     this.type = type;
     this.controller = controller;
@@ -49,34 +48,42 @@ export interface IBtc1DidDocument extends IDidDocument {
 export class Btc1DidDocument implements IBtc1DidDocument {
   id: string;
   '@context'?: string | (string | Record<string, any>)[] = BTC1_DID_DOCUMENT_CONTEXT;
-  verificationMethod: DidVerificationMethod[];
-  authentication?: (string | DidVerificationMethod)[] = ['#initialKey'];
-  assertionMethod?: (string | DidVerificationMethod)[] = ['#initialKey'];
-  capabilityInvocation?: (string | DidVerificationMethod)[] = ['#initialKey'];
-  capabilityDelegation?: (string | DidVerificationMethod)[] = ['#initialKey'];
+  verificationMethod: Btc1VerificationMethod[];
+  authentication?: (string | Btc1VerificationMethod)[] = ['#initialKey'];
+  assertionMethod?: (string | Btc1VerificationMethod)[] = ['#initialKey'];
+  capabilityInvocation?: (string | Btc1VerificationMethod)[] = ['#initialKey'];
+  capabilityDelegation?: (string | Btc1VerificationMethod)[] = ['#initialKey'];
   service: BeaconService[];
 
   constructor({ id, verificationMethod, service }: Btc1DidDocument) {
+    // Set the id
+    this.id = id;
+    // Set the service
+    this.service = service;
+    // Set the verification method
+    this.verificationMethod = verificationMethod;
+
+    // Set isIntermediate to true if the id is a placeholder value
+    if(id === ID_PLACEHOLDER_VALUE) {
+      return;
+    }
+
     // Validate the id
     if (!Btc1DidDocument.isValidId(id)) {
       throw new DidDocumentError('Invalid "id"', INVALID_DID_DOCUMENT, { id });
     }
-    // Set the id
-    this.id = id;
 
     // Validate the verification method
     if (!Btc1DidDocument.isValidVerificationMethods(verificationMethod)) {
       throw new DidDocumentError('Invalid "verificationMethod"', INVALID_DID_DOCUMENT, { verificationMethod });
     }
-    // Set the verification method
-    this.verificationMethod = verificationMethod;
+
 
     // Validate the service
     if (!Btc1DidDocument.isValidServices(service)) {
       throw new DidDocumentError('Invalid "service"', INVALID_DID_DOCUMENT, { service });
     }
-    // Set the service
-    this.service = service;
+
 
     // Validate the DID Document
     Btc1DidDocument.validate(this);
@@ -122,11 +129,12 @@ export class Btc1DidDocument implements IBtc1DidDocument {
    * Validates that the DID Document has a valid id.
    * @private
    */
-  private static isValidId(id: DidBtc1Identifier): boolean {
+  private static isValidId(id: string): boolean {
     try {
-      Btc1Appendix.parse(id);
+      Btc1Identifier.decode(id);
       return true;
-    } catch {
+    } catch (error: any) {
+      Logger.error('Invalid DID Document ID', error);
       return false;
     }
   }
@@ -180,4 +188,10 @@ export class Btc1DidDocument implements IBtc1DidDocument {
     return didDocument;
   }
 
+}
+
+export class IntermediateDidDocument extends Btc1DidDocument {
+  constructor(params: Btc1DidDocument) {
+    super(params);
+  }
 }
