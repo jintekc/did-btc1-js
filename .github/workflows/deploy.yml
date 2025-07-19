@@ -1,13 +1,16 @@
-# .github/workflows/ci.yml
-name: CI
+# .github/workflows/deploy.yml
+name: Deploy
 
 on:
   push:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
-  ci:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,18 +24,15 @@ jobs:
 
       - name: 📦 Install pnpm
         run: npm install -g pnpm
-      
+
       - name: 📥 Install dependencies
         run: pnpm install -r --no-lockfile
 
-      - name: 🧹 Run linter
-        run: pnpm lint
+      - name: 📚 Build VitePress site
+        run: pnpm docs:build
 
-      - name: 🏗️ Build packages
-        run: pnpm build
-
-      - name: 🧪 Build tests
-        run: pnpm build:tests
-      
-      # - name: Run tests
-      #   run: pnpm test
+      - name: 🚀 Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/.vitepress/dist
