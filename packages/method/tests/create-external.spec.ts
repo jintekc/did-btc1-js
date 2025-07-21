@@ -1,5 +1,5 @@
 import { ID_PLACEHOLDER_VALUE } from '@did-btc1/common';
-import { PublicKey } from '@did-btc1/key-pair';
+import { PublicKey } from '@did-btc1/keypair';
 import { payments } from 'bitcoinjs-lib';
 import { expect } from 'chai';
 import { DidBtc1 } from '../src/did-btc1.js';
@@ -30,7 +30,7 @@ describe('DidBtc1 Create External', () => {
       id                 : `${ID_PLACEHOLDER_VALUE}#key-0`,
       type               : 'Multikey',
       controller         : ID_PLACEHOLDER_VALUE,
-      publicKeyMultibase : publicKey.multibase
+      publicKeyMultibase : publicKey.multibase.address
     }
   ];
   const p2tr = payments.p2tr({ network: getNetwork('bitcoin'), internalPubkey: publicKey.x }).address;

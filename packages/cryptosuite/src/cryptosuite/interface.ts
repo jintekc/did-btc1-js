@@ -1,5 +1,4 @@
 import {
-  CanonicalizableObject,
   CanonicalizedProofConfig,
   DidUpdateInvocation,
   DidUpdatePayload,
@@ -9,13 +8,7 @@ import {
   ProofOptions,
   SignatureBytes
 } from '@did-btc1/common';
-import { Multikey } from '../multikey/index.js';
-
-export interface CryptosuiteParams {
-  type?: 'DataIntegrityProof';
-  cryptosuite: 'bip340-jcs-2025' | 'bip340-rdfc-2025';
-  multikey: Multikey;
-}
+import { SchnorrMultikey } from '../multikey/index.js';
 
 export interface CreateProofParams {
   options: ProofOptions;
@@ -61,16 +54,8 @@ export interface ICryptosuite {
   /** @type {string} The name of the cryptosuite */
   cryptosuite: string;
 
-  /** @type {Multikey} The Multikey used by the cryptosuite */
-  multikey: Multikey;
-
-  /**
-   * Canonicalize a document. Toggles between JCS and RDFC based on the value set in the cryptosuite.
-   * @param {CanonicalizableObject} object The document to canonicalize.
-   * @returns {string} The canonicalized document.
-   * @throws {Btc1Error} if the document cannot be canonicalized.
-   */
-  canonicalize(object: CanonicalizableObject): string | Promise<string>;
+  /** @type {SchnorrMultikey} The SchnorrMultikey used by the cryptosuite */
+  multikey: SchnorrMultikey;
 
   /**
    * Create a proof for an insecure document.

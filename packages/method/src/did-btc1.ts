@@ -56,7 +56,7 @@ export class DidBtc1 implements DidMethod {
    * Bitcoin network to create their DID.
    * @param {Btc1CreateParams} params See {@link Btc1CreateParams} for details.
    * @param {IdType} params.idType Type of identifier to create (key or external).
-   * @param {PublicKeyBytes} params.pubKeyBytes Public key byte array used to create a btc1 "key" identifier.
+   * @param {KeyBytes} params.pubKeyBytes Public key byte array used to create a btc1 "key" identifier.
    * @param {IntermediateDocument} params.intermediateDocument DID Document used to create a btc1 "external" identifier.
    * @param {DidCreateOptions} params.options See {@link DidCreateOptions} for create options.
    * @param {number} params.options.version Version number of the btc1 method.
@@ -134,10 +134,6 @@ export class DidBtc1 implements DidMethod {
         didDocument           : targetDocument,
       };
 
-      // Logger.warn('// TODO: Are we using the DID Core spec for DidResolutionResult?');
-      // Logger.warn('// TODO: Are we using didResolutionMetadata? https://www.w3.org/TR/did-1.0/#did-resolution-metadata');
-      // Logger.warn('// TODO: Are we using didDocumentMetadata? https://www.w3.org/TR/did-1.0/#did-document-metadata');
-
       // Return didResolutionResult;
       return didResolutionResult;
     } catch (error: any) {
@@ -171,7 +167,7 @@ export class DidBtc1 implements DidMethod {
    * The result of these transformations MUST produce a DID document conformant to the DID Core specification. The
    * verificationMethodId is an identifier for a verificationMethod within the sourceDocument. The verificationMethod
    * identified MUST be a BIP340 Multikey. The beaconIds MUST identify service endpoints with one of the three Beacon
-   * Types SingletonBeacon, aCIDAggregateBeacon, and SMTAggregateBeacon.
+   * Types SingletonBeacon, CIDAggregateBeacon, and SMTAggregateBeacon.
    *
    * @param {Btc1UpdateParams} params Required parameters for the update operation.
    * @param {string} params.identifier The btc1 identifier to be updated.
@@ -181,7 +177,7 @@ export class DidBtc1 implements DidMethod {
    * @param {string} params.verificationMethodId The verificationMethod ID to sign the update
    * @param {string[]} params.beaconIds The beacon IDs to announce the update
    * @returns {Promise<void>} Promise resolving to void
-   * @throws {Btc1Error} if the verificationMethod type is not `Multikey` or the publicKeyMultibase header is not `z66P`
+   * @throws {Btc1Error} if the verificationMethod type is not `Multikey` or the publicKeyMultibase header is not `zQ3s`
    */
   public static async update(params: {
     identifier: string;
@@ -242,6 +238,7 @@ export class DidBtc1 implements DidMethod {
 
     // 6. Return signalsMetadata. It is up to implementations to ensure that the signalsMetadata is persisted.
     return signalsMetadata;
+    // TODO: Should we be applying the patch, producing a target did document and returning it?
   }
 
   /**

@@ -1,8 +1,19 @@
-import { BitcoinNetworkNames, Btc1IdentifierTypes, Btc1Error, INVALID_DID, METHOD_NOT_SUPPORTED } from '@did-btc1/common';
-import { PublicKey } from '@did-btc1/key-pair';
+import { BitcoinNetworkNames, Btc1Error, Btc1IdentifierTypes, Bytes, INVALID_DID, METHOD_NOT_SUPPORTED } from '@did-btc1/common';
+import { PublicKey, SchnorrKeyPair } from '@did-btc1/keypair';
 import { bech32m } from '@scure/base';
 import { DidComponents } from './appendix.js';
 
+/**
+ * Implements {@link https://dcdpr.github.io/did-btc1/#syntax | 3 Syntax}.
+ * A did:btc1 DID consists of a did:btc1 prefix, followed by an id-bech32 value, which is a Bech32m encoding of:
+ *    - the specification version;
+ *    - the Bitcoin network identifier; and
+ *    - either:
+ *      - a key-value representing a secp256k1 public key; or
+ *      - a hash-value representing the hash of an initiating external DID document.
+ * @class Btc1Identifier
+ * @type {Btc1Identifier}
+ */
 export class Btc1Identifier {
   /**
    * Implements {@link https://dcdpr.github.io/did-btc1/#didbtc1-identifier-encoding | 3.2 did:btc1 Identifier Encoding}.
@@ -18,14 +29,14 @@ export class Btc1Identifier {
    * @param {Btc1IdentifierTypes} params.idType Identifier type (key or external).
    * @param {string} params.network Bitcoin network name.
    * @param {number} params.version Identifier version.
-   * @param {PublicKeyBytes | DocumentBytes} params.genesisBytes Public key or an intermediate document bytes.
+   * @param {KeyBytes | DocumentBytes} params.genesisBytes Public key or an intermediate document bytes.
    * @returns {string} The new did:btc1 identifier.
    */
   public static encode({ idType, version, network, genesisBytes }: {
     idType: string;
     version: number;
     network: string | number;
-    genesisBytes: Uint8Array;
+    genesisBytes: Bytes;
   }): string {
     // 1. If idType is not a valid value per above, raise invalidDid error.
     if (!(idType in Btc1IdentifierTypes)) {
@@ -47,8 +58,17 @@ export class Btc1Identifier {
       throw new Btc1Error('Invalid "network" number', INVALID_DID, {network});
     }
 
-
     // 5. If idType is “key” and genesisBytes is not a valid compressed secp256k1 public key, raise invalidDid error.
+    if (idType === 'KEY') {
+      try {
+        new PublicKey(genesisBytes);
+      } catch {
+        throw new Btc1Error(
+          'Expected "genesisBytes" to be a valid compressed secp256k1 public key',
+          INVALID_DID, { genesisBytes }
+        );
+      }
+    }
 
     // 6. Map idType to hrp from the following:
     //   6.1 “key” - “k”
@@ -70,16 +90,17 @@ export class Btc1Identifier {
     nibbles.push((version - 1) % 15);
 
     // 11. If network is a string, append the numeric value from the following map to nibbles:
-    //     “bitcoin” - 0
-    //     “signet” - 1
-    //     “regtest” - 2
-    //     “testnet3” - 3
-    //     “testnet4” - 4
+    //     "bitcoin" - 0
+    //     "signet" - 1
+    //     "regtest" - 2
+    //     "testnet3" - 3
+    //     "testnet4" - 4
+    //     "mutinynet" - 5
     if(typeof network === 'string') {
       nibbles.push(BitcoinNetworkNames[network as keyof typeof BitcoinNetworkNames]);
     } else if (typeof network === 'number') {
-      // 12. If network is a number, append network + 7 to nibbles.
-      nibbles.push(network + 7);
+      // 12. If network is a number, append network + 11 to nibbles.
+      nibbles.push(network + 11);
     }
 
     // 13. If the number of entries in nibbles is odd, append 0.
@@ -89,11 +110,9 @@ export class Btc1Identifier {
 
     // 14. Create a dataBytes byte array from nibbles, where index is from 0 to nibbles.length / 2 - 1 and
     //     encodingBytes[index] = (nibbles[2 * index] << 4) | nibbles[2 * index + 1].
-
     if (fCount !== 0){
       for(let index in Array.from({ length: (nibbles.length / 2) - 1 })) {
-        console.log(index);
-        throw new Error('Not implemented');
+        throw new Btc1Error('Not implemented', 'NOT_IMPLEMENTED', { index });
       }
     }
     const dataBytes = new Uint8Array([(nibbles[2 * 0] << 4) | nibbles[2 * 0 + 1], ...genesisBytes]);
@@ -196,17 +215,18 @@ export class Btc1Identifier {
     nibblesConsumed += 1;
 
     // 16. Map networkValue to network from the following:
-    //     0 - “bitcoin”
-    //     1 - “signet”
-    //     2 - “regtest”
-    //     3 - “testnet3”
-    //     4 - “testnet4”
-    //     5-7 - raise invalidDid error
-    //     8-F - networkValue - 7
+    //     0 - "bitcoin"
+    //     1 - "signet"
+    //     2 - "regtest"
+    //     3 - "testnet3"
+    //     4 - "testnet4"
+    //     5 - "mutinynet"
+    //     6-7 - raise invalidDid error
+    //     8-F - networkValue - 11
     let network: string | number | undefined = BitcoinNetworkNames[networkValue];
     if (!network) {
       if (networkValue >= 0x8 && networkValue <= 0xF) {
-        network = networkValue - 7;
+        network = networkValue - 11;
       } else {
         throw new Btc1Error(`Invalid did: ${identifier}`, INVALID_DID, { identifier });
       }
@@ -236,5 +256,21 @@ export class Btc1Identifier {
 
     // 20. Return idType, version, network, and genesisBytes.
     return {idType, hrp, version, network, genesisBytes} as DidComponents;
+  }
+
+  /**
+   * Generates a new did:btc1 identifier based on a newly generated key pair.
+   * @returns {string} The new did:btc1 identifier.
+   */
+  public static generate(): { keys: SchnorrKeyPair; identifier: { controller: string; id: string } } {
+    const keys = SchnorrKeyPair.generate();
+    const did = this.encode({
+      idType       : Btc1IdentifierTypes.KEY,
+      version      : 1,
+      network      : BitcoinNetworkNames.bitcoin,
+      genesisBytes : keys.publicKey.compressed
+    });
+
+    return { keys, identifier: { controller: did, id: '#initialKey'} };
   }
 }

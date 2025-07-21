@@ -19,20 +19,25 @@ export const BTC1_DID_REGEX = /did:btc1:(x1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]*)/
 export type ExternalData = {
   id: string,
   verificationMethod: Array<Btc1VerificationMethod>,
-  authentication?: Array<string | DidVerificationMethod>,
-  assertionMethod?: Array<string | DidVerificationMethod>,
-  capabilityInvocation?: Array<string | DidVerificationMethod>,
-  capabilityDelegation?: Array<string | DidVerificationMethod>,
+  authentication?: Array<string | Btc1VerificationMethod>,
+  assertionMethod?: Array<string | Btc1VerificationMethod>,
+  capabilityInvocation?: Array<string | Btc1VerificationMethod>,
+  capabilityDelegation?: Array<string | Btc1VerificationMethod>,
   service: Array<BeaconService>
 }
-export type VerificationRelationship = Array<string | Btc1VerificationMethod>
+export type VerificationRelationships = {
+  authentication?: Array<string | Btc1VerificationMethod>;
+  assertionMethod?: Array<string | Btc1VerificationMethod>;
+  capabilityInvocation?: Array<string | Btc1VerificationMethod>;
+  capabilityDelegation?: Array<string | Btc1VerificationMethod>;
+}
 
 export interface IBtc1VerificationMethod extends DidVerificationMethod {
   id: string;
   type: string;
   controller: string;
   publicKeyMultibase: string;
-  privateKeyMultibase?: string | undefined;
+  secretKeyMultibase?: string | undefined;
 }
 
 /**
@@ -46,16 +51,16 @@ export class Btc1VerificationMethod implements IBtc1VerificationMethod {
   type: string;
   controller: string;
   publicKeyMultibase: string;
-  privateKeyMultibase?: string | undefined;
+  secretKeyMultibase?: string | undefined;
 
-  constructor({ id, type, controller, publicKeyMultibase, privateKeyMultibase }: IBtc1VerificationMethod) {
+  constructor({ id, type, controller, publicKeyMultibase, secretKeyMultibase }: IBtc1VerificationMethod) {
     this.id = id;
     this.type = type;
     this.controller = controller;
     this.publicKeyMultibase = publicKeyMultibase;
-    this.privateKeyMultibase = privateKeyMultibase;
-    if(!privateKeyMultibase){
-      delete this.privateKeyMultibase;
+    this.secretKeyMultibase = secretKeyMultibase;
+    if(!secretKeyMultibase){
+      delete this.secretKeyMultibase;
     }
   }
   // TODO: Add helper methods and properties
@@ -70,21 +75,21 @@ export class Btc1VerificationMethod implements IBtc1VerificationMethod {
  * @property {Array<string>} [controller] - The controller of the DID Document.
  * @property {Array<string | JSONObject>} ['@context'] - The context of the DID Document.
  * @property {Array<DidVerificationMethod>} verificationMethod - The verification methods of the DID Document.
- * @property {Array<string | DidVerificationMethod>} [authentication] - The authentication methods of the DID Document.
- * @property {Array<string | DidVerificationMethod>} [assertionMethod] - The assertion methods of the DID Document.
- * @property {Array<string | DidVerificationMethod>} [capabilityInvocation] - The capability invocation methods of the DID Document.
- * @property {Array<string | DidVerificationMethod>} [capabilityDelegation] - The capability delegation methods of the DID Document.
+ * @property {Array<string | Btc1VerificationMethod>} [authentication] - The authentication methods of the DID Document.
+ * @property {Array<string | Btc1VerificationMethod>} [assertionMethod] - The assertion methods of the DID Document.
+ * @property {Array<string | Btc1VerificationMethod>} [capabilityInvocation] - The capability invocation methods of the DID Document.
+ * @property {Array<string | Btc1VerificationMethod>} [capabilityDelegation] - The capability delegation methods of the DID Document.
  * @property {Array<BeaconService>} service - The services of the DID Document.
  */
 export interface IBtc1DidDocument extends IDidDocument {
   id: string;
   controller?: Array<string>;
   '@context'?: Array<string | JSONObject>;
-  verificationMethod: Array<DidVerificationMethod>;
-  authentication?: Array<string | DidVerificationMethod>;
-  assertionMethod?: Array<string | DidVerificationMethod>;
-  capabilityInvocation?: Array<string | DidVerificationMethod>;
-  capabilityDelegation?: Array<string | DidVerificationMethod>;
+  verificationMethod: Array<Btc1VerificationMethod>;
+  authentication?: Array<string | Btc1VerificationMethod>;
+  assertionMethod?: Array<string | Btc1VerificationMethod>;
+  capabilityInvocation?: Array<string | Btc1VerificationMethod>;
+  capabilityDelegation?: Array<string | Btc1VerificationMethod>;
   service: Array<BeaconService>;
 }
 
@@ -97,21 +102,21 @@ export interface IBtc1DidDocument extends IDidDocument {
  * @property {Array<string>} [controller] - The controller of the DID Document.
  * @property {Array<string | JSONObject>} ['@context'] - The context of the DID Document.
  * @property {Array<DidVerificationMethod>} verificationMethod - The verification methods of the DID Document.
- * @property {Array<string | DidVerificationMethod>} [authentication] - The authentication methods of the DID Document.
- * @property {Array<string | DidVerificationMethod>} [assertionMethod] - The assertion methods of the DID Document.
- * @property {Array<string | DidVerificationMethod>} [capabilityInvocation] - The capability invocation methods of the DID Document.
- * @property {Array<string | DidVerificationMethod>} [capabilityDelegation] - The capability delegation methods of the DID Document.
+ * @property {Array<string | Btc1VerificationMethod>} [authentication] - The authentication methods of the DID Document.
+ * @property {Array<string | Btc1VerificationMethod>} [assertionMethod] - The assertion methods of the DID Document.
+ * @property {Array<string | Btc1VerificationMethod>} [capabilityInvocation] - The capability invocation methods of the DID Document.
+ * @property {Array<string | Btc1VerificationMethod>} [capabilityDelegation] - The capability delegation methods of the DID Document.
  * @property {Array<BeaconService>} service - The services of the DID Document.
  */
 export class Btc1DidDocument implements IBtc1DidDocument {
   id: string;
   controller?: Array<string>;
   '@context'?: Array<string | JSONObject> = BTC1_DID_DOCUMENT_CONTEXT;
-  verificationMethod: Array<DidVerificationMethod>;
-  authentication?: Array<string | DidVerificationMethod>;
-  assertionMethod?: Array<string | DidVerificationMethod>;
-  capabilityInvocation?: Array<string | DidVerificationMethod>;
-  capabilityDelegation?: Array<string | DidVerificationMethod>;
+  verificationMethod: Array<Btc1VerificationMethod>;
+  authentication?: Array<string | Btc1VerificationMethod>;
+  assertionMethod?: Array<string | Btc1VerificationMethod>;
+  capabilityInvocation?: Array<string | Btc1VerificationMethod>;
+  capabilityDelegation?: Array<string | Btc1VerificationMethod>;
   service: Array<BeaconService>;
 
   constructor(document: IBtc1DidDocument) {
@@ -433,26 +438,18 @@ export class IntermediateDidDocument extends Btc1DidDocument {
 
   /**
    * Create a minimal IntermediateDidDocument with a placeholder ID.
-   * @param {string} publicKeyMultibase The public key in multibase format.
+   * @param {Array<Btc1VerificationMethod>} verificationMethod The public key in multibase format.
+   * @param {VerificationRelationships} relationships The public key in multibase format.
    * @param {Array<BeaconService>} service The service to be included in the document.
    * @returns {IntermediateDidDocument} A new IntermediateDidDocument with the placeholder ID.
    */
   public static create(
-    publicKeyMultibase: string,
+    verificationMethod: Array<Btc1VerificationMethod>,
+    relationships: VerificationRelationships,
     service: Array<BeaconService>
   ): IntermediateDidDocument {
-    return new IntermediateDidDocument({
-      id                 : ID_PLACEHOLDER_VALUE,
-      verificationMethod : [
-        new Btc1VerificationMethod({
-          id         : ID_PLACEHOLDER_VALUE,
-          type       : 'Multikey',
-          controller : ID_PLACEHOLDER_VALUE,
-          publicKeyMultibase
-        })
-      ],
-      service,
-    });
+    const id = ID_PLACEHOLDER_VALUE;
+    return new IntermediateDidDocument({ id, ...relationships, verificationMethod, service, });
   }
 
   /**

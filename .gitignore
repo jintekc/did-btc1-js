@@ -92,7 +92,7 @@ web_modules/
 .env.production.local
 .env.local
 .env.*
-F
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
@@ -167,3 +167,7 @@ temp
 
 # Release build output
 release/
+
+# VitePress output folders
+.vitepress/dist
+.vitepress/cache
